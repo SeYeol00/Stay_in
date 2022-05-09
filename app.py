@@ -12,14 +12,14 @@ db = client.dbsparta
 def home():
     return render_template('login.html')
 
+@app.route('/reviews')
+def reviews():
+    return render_template('reviews.html')
+
+
 @app.route('/main')
 def info():
     return render_template('main.html')
-
-@app.route('/reviews')
-def review():
-    return render_template('reviews.html')
-
 
 @app.route("/info", methods=["POST"])
 def hotel_post():
@@ -45,8 +45,6 @@ def hotel_post():
 def hotel_get():
     hotel_list = list(db.hotel.find({}, {'_id': False}))
     return jsonify({'hotels': hotel_list})
-
-
 
 
 if __name__ == '__main__':

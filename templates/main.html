@@ -32,6 +32,8 @@
             flex-direction: row;
             align-items: center;
             justify-content: center;
+            z-index: 120;
+            position: fixed;
         }
 
         .btn > button {
@@ -85,10 +87,15 @@
 
         .main {
             width: auto;
-            height: auto;
+            height: 100vh;
             background-image: url("/static/bg.jpg");
-            background-position: center;
+            background-repeat: no-repeat;
             background-size: cover;
+
+            display: flex;
+            flex-direction: row;
+            align-items:center;
+            justify-content: center;
 
             padding-top: 20px;
             padding-bottom: 20px;
@@ -105,6 +112,8 @@
             flex-direction: row;
             align-items: center;
             justify-content: space-between;
+            position: static;
+            bottom: 0;
         }
 
         .addbtn {
@@ -149,7 +158,7 @@
                                                     <h5 class="card-title">${title}</h5>
                                                     <p class="card-text">${hotel_address}</p>
                                                     <p>${star_image}</p>
-                                                    <p class="comment"><button onclick="to_review()">상세리뷰</button></p>
+                                                    <p class="comment"><button onclick="to_review(${num})">상세리뷰</button></p>
                                                 </div>
                                             </div>
                                         </div>`
@@ -159,18 +168,10 @@
             })
         }
 
-        function to_review(){
-            $.ajax({
-                type: 'POST',
-                url: '/info',
-                data: {url_give: url, star_give:star, title_give:title, hotel_address_give: hotel_address},
-                success: function (response) {
-                    alert(response['msg'])
-                    window.location.reload()
-                }
-            });
-            window.location.href="/reviews"
-            }
+        function to_review(num) {
+            let hotel_num = num
+            window.location.href = "/reviews?num="+ hotel_num
+        }
 
         function posting() {
             let url = $('#url').val()
@@ -211,7 +212,13 @@
     </div>
 </div>
 <div class="main">
-    <div class="mypost" id="post-box">
+
+    <div class="mycards">
+        <div class="row row-cols-1 row-cols-md-4 g-4" id="cards-box">
+
+        </div>
+    </div>
+     <div class="mypost" id="post-box">
         <div class="form-floating mb-3">
             <input id="url" type="email" class="form-control" placeholder="url">
             <label>호텔이미지URL</label>
@@ -238,11 +245,6 @@
         <div class="mybtns">
             <button onclick="posting()" type="button" class="btn btn-dark">등록하기</button>
             <button onclick="close_box()" type="button" class="btn btn-outline-dark">닫기</button>
-        </div>
-    </div>
-    <div class="mycards">
-        <div class="row row-cols-1 row-cols-md-4 g-4" id="cards-box">
-
         </div>
     </div>
 </div>
