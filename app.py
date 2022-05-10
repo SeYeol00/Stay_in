@@ -46,18 +46,21 @@ def hotel_get():
     hotel_list = list(db.hotel.find({}, {'_id': False}))
     return jsonify({'hotels': hotel_list})
 
+
+
+#reviews
 @app.route('/posting', methods=['POST'])
 def posting():
+    hotel_id = request.args.get("num")
     token_receive = request.cookies.get('mytoken')
     try:
         payload = jwt.decode(token_receive, SECRET_KEY, algorithms=['HS256'])
         user_info = db.user.find_one({"user_id": payload["id"]})
         comment_receive = request.form["comment_give"]
         comment_rate = request.form["comment_rate"]
-        hotel_name = request.form["hotel_name"]
         doc = {
             "nickname": user_info["nickname"],
-            "hotel_name": hotel_name,
+            "hotel_id": hotel_id,
             "comment": comment_receive,
             "comment_rate": comment_rate
         }
@@ -69,10 +72,11 @@ def posting():
 
 @app.route("/get_posts", methods=['GET'])
 def get_posts():
+    hotel_id = request.args.get("num")
     token_receive = request.cookies.get('mytoken')
     try:
         payload = jwt.decode(token_receive, SECRET_KEY, algorithms=['HS256'])
-        posts = list(db.comment.find({}).limit(20))#내림차순 20개 가져오기
+        posts = list(db.comment.find({'hotel_id': hotel_id}).limit(20))#내림차순 20개 가져오기
         for post in posts:
             post["_id"] = str(post["_id"])#고유값 이것을 항상 스트링으로 변경하기
         return jsonify({"result": "success", "msg": "포스팅을 가져왔습니다.","posts":posts})
