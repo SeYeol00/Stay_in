@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, jsonify, redirect,url_for
 app = Flask(__name__)
 
 import jwt
@@ -108,19 +108,28 @@ def hotel_get():
 
 @app.route('/reviews')
 def reviews():
+    #hotel_id = request.args.get("num")
+    #print("hotel_recieved: ",hotel_id)
+    token_receive = request.cookies.get('token')
+    print("token_recieved??: ", token_receive)
     return render_template('reviews.html')
 
 
 #reviews
 @app.route('/posting', methods=['POST'])
 def posting():
-    hotel_id = request.args.get("num")
-    token_receive = request.cookies.get('mytoken')
+    #hotel_id = request.args.get("num")
+    #print("hotel_recieved: ",hotel_id)
+    token_receive = request.cookies.get('token')
+    print(token_receive)
     try:
+        print("token_recieved??: ", token_receive)
         payload = jwt.decode(token_receive, SECRET_KEY, algorithms=['HS256'])
-        user_info = db.user.find_one({"user_id": payload["id"]})
+        user_info = db.users.find_one({"user_id": payload["id"]})
         comment_receive = request.form["comment_give"]
         comment_rate = request.form["comment_rate"]
+        hotel_id = request.form["hotel_id"]
+        print("hotel_recieved: ",hotel_id)
         doc = {
             "nickname": user_info["nickname"],
             "hotel_id": hotel_id,
@@ -130,13 +139,15 @@ def posting():
         db.comment.insert_one(doc)
         return jsonify({"result": "success", 'msg': '포스팅 성공'})
     except (jwt.ExpiredSignatureError, jwt.exceptions.DecodeError):
-        return redirect(url_for("/reviews"))
+        return redirect(url_for("reviews"))
 
 
 @app.route("/get_posts", methods=['GET'])
 def get_posts():
     hotel_id = request.args.get("num")
-    token_receive = request.cookies.get('mytoken')
+    print("hotel_recieved: ",hotel_id)
+    token_receive = request.cookies.get('token')
+    print("token_receive",token_receive)
     try:
         payload = jwt.decode(token_receive, SECRET_KEY, algorithms=['HS256'])
         posts = list(db.comment.find({'hotel_id': hotel_id}).limit(20))#내림차순 20개 가져오기
@@ -144,7 +155,7 @@ def get_posts():
             post["_id"] = str(post["_id"])#고유값 이것을 항상 스트링으로 변경하기
         return jsonify({"result": "success", "msg": "포스팅을 가져왔습니다.","posts":posts})
     except (jwt.ExpiredSignatureError, jwt.exceptions.DecodeError):
-        return redirect(url_for("/reviews"))
+        return redirect(url_for("reviews"))
 
 
 
