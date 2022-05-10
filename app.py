@@ -78,6 +78,8 @@ def check_nickname_dup():
 
 @app.route('/main')
 def info():
+    token_receive = request.cookies.get('mytoken')
+    print("main token_recieved??: ", token_receive)
     hotel_list = list(db.hotel.find({}, {'_id': False}))
     return render_template('main.html', rows=hotel_list)
 
@@ -103,6 +105,8 @@ def hotel_post():
 
 @app.route("/info", methods=["GET"])
 def hotel_get():
+    token_receive = request.cookies.get('mytoken')
+    print("token_recieved??: ", token_receive)
     hotel_list = list(db.hotel.find({}, {'_id': False}))
     return jsonify({'hotels': hotel_list})
 
@@ -110,7 +114,7 @@ def hotel_get():
 def reviews():
     #hotel_id = request.args.get("num")
     #print("hotel_recieved: ",hotel_id)
-    token_receive = request.cookies.get('token')
+    token_receive = request.cookies.get('mytoken')
     print("token_recieved??: ", token_receive)
     return render_template('reviews.html')
 
@@ -120,7 +124,7 @@ def reviews():
 def posting():
     hotel_id = request.form["hotel_id_give"]
     print("hotel_recieved: ",hotel_id)
-    token_receive = request.cookies.get('token')
+    token_receive = request.cookies.get('mytoken')
     print(token_receive)
     try:
         print("token_recieved??: ", token_receive)
@@ -148,7 +152,7 @@ def posting():
 def get_posts():
     hotel_id = request.args.get("num")
     print("hotel_recieved: ",hotel_id)
-    token_receive = request.cookies.get('token')
+    token_receive = request.cookies.get('mytoken')
     print("token_receive",token_receive)
     try:
         payload = jwt.decode(token_receive, SECRET_KEY, algorithms=['HS256'])
