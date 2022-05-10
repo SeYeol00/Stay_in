@@ -37,20 +37,25 @@
       $(document).ready(function () {
         let getLink = window.location.search;
         let num = getLink.split("=")[1];
+        console.log("num: ", num);
         get_posts();
       });
       function to_main() {
         window.location.href = "/main";
       }
       function post() {
+        let getLink = window.location.search;
+        let num = getLink.split("=")[1];
         let comment = $("#textarea-post").val();
         let comment_rate = $("#star").val();
+        console.log("num: ", num);
         $.ajax({
           type: "POST",
           url: "/posting",
           data: {
             comment_give: comment,
             comment_rate: comment_rate,
+            hotel_id: num,
           },
           success: function (response) {
             $("#modal-post").removeClass("is-active"); //모달을 닫는다.
