@@ -38,7 +38,7 @@
         let getLink = window.location.search;
         let num = getLink.split("=")[1];
         console.log("num: ", num);
-        //get_posts();
+        get_posts();
       });
       function to_main() {
         window.location.href = "/main";
@@ -63,10 +63,12 @@
         });
       }
       function get_posts() {
+        let getLink = window.location.search;
+        let num = getLink.split("=")[1];
         $.ajax({
-          type: "GET",
+          type: "POST",
           url: "/get_posts",
-          data: {},
+          data: { hotel_id_give: num },
           success: function (response) {
             console.log(response["result"]);
             if (response["result"] == "success") {
@@ -96,7 +98,6 @@
                 $("#post-box").append(html_temp);
               }
               console.log("confirmed");
-              window.location.reload();
             }
           },
         });
