@@ -90,8 +90,10 @@ def check_nickname_dup():
 
 @app.route('/main')
 def info():
+    token_receive = request.cookies.get('mytoken')
+    if token_receive == None:
+        return redirect(url_for("login"))
     try:
-        token_receive = request.cookies.get('mytoken')
         print("main token_recieved??: ", token_receive)
         hotel_list = list(db.hotel.find({}, {'_id': False}))
         return render_template('main.html', rows=hotel_list)
@@ -100,6 +102,9 @@ def info():
 
 @app.route("/info", methods=["POST"])
 def hotel_post():
+    token_receive = request.cookies.get('mytoken')
+    if token_receive == None:
+        return redirect(url_for("login"))
     try:
         hotel_list = list(db.hotel.find({}, {'_id': False}))
         count = len(hotel_list) + 1
@@ -123,8 +128,10 @@ def hotel_post():
 
 @app.route("/info", methods=["GET"])
 def hotel_get():
+    token_receive = request.cookies.get('mytoken')
+    if token_receive == None:
+        return redirect(url_for("login"))
     try:
-        token_receive = request.cookies.get('mytoken')
         print("token_recieved??: ", token_receive)
         hotel_list = list(db.hotel.find({}, {'_id': False}))
         return jsonify({'hotels': hotel_list})
@@ -133,10 +140,12 @@ def hotel_get():
 
 @app.route('/reviews')
 def reviews():
+    token_receive = request.cookies.get('mytoken')
+    if token_receive == None:
+        return redirect(url_for("login"))
     try:
         #hotel_id = request.args.get("num")
         #print("hotel_recieved: ",hotel_id)
-        token_receive = request.cookies.get('mytoken')
         print("token_recieved??: ", token_receive)
         return render_template('reviews.html')
     except (jwt.ExpiredSignatureError, jwt.exceptions.DecodeError):
@@ -149,11 +158,13 @@ def reviews():
 #reviews
 @app.route('/posting', methods=['POST'])
 def posting():
-    
+    token_receive = request.cookies.get('mytoken')
+    if token_receive == None:
+        return redirect(url_for("login"))
     try:
         hotel_id = request.form["hotel_id_give"]
         print("hotel_recieved: ",hotel_id)
-        token_receive = request.cookies.get('mytoken')
+        
         print(token_receive)
         print("token_recieved??: ", token_receive)
         payload = jwt.decode(token_receive, SECRET_KEY, algorithms=['HS256'])
@@ -182,11 +193,13 @@ def posting():
 
 @app.route("/get_posts", methods=['POST'])
 def get_posts():
+    token_receive = request.cookies.get('mytoken')
+    if token_receive == None:
+        return redirect(url_for("login"))
     try:
         hotel_id = request.form["hotel_id_give"]
         # hotel_id = request.args.get("num")
         # print("hotel_id: ", hotel_id)
-        token_receive = request.cookies.get('mytoken')
         print("token_receive",token_receive)
         print("getting1")
         payload = jwt.decode(token_receive, SECRET_KEY, algorithms=['HS256'])
@@ -208,6 +221,8 @@ def get_posts():
 @app.route('/update_like', methods=['POST'])
 def update_like():
     token_receive = request.cookies.get('mytoken')
+    if token_receive == None:
+        return redirect(url_for("login"))
     try:
         payload = jwt.decode(token_receive, SECRET_KEY, algorithms=['HS256'])
         user_info = db.users.find_one({"user_id": payload["user_id"]})
