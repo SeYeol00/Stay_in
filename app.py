@@ -19,20 +19,7 @@ SECRET_KEY = 'sparta'
 
 @app.route('/')
 def home():
-    token_receive = request.cookies.get('mytoken')
-    try:
-        payload = jwt.decode(token_receive, SECRET_KEY, algorithms=['HS256'])
-        user_info = db.users.find_one({"user_id": payload["user_id"]})
-        return redirect(url_for("info"))
-    except jwt.ExpiredSignatureError:
-        return redirect(url_for("login"))
-    except jwt.exceptions.DecodeError:
-        return redirect(url_for("login"))
-
-@app.route('/login')
-def login():
-    return render_template("login.html")
-
+        return render_template('login.html')
 
 
 @app.route('/sign_in', methods=['POST'])
@@ -92,12 +79,9 @@ def check_nickname_dup():
 @app.route('/main')
 def info():
     token_receive = request.cookies.get('mytoken')
-    try:
-        print("main token_recieved??: ", token_receive)
-        hotel_list = list(db.hotel.find({}, {'_id': False}))
-        return render_template('main.html', rows=hotel_list)
-    except (jwt.ExpiredSignatureError, jwt.exceptions.DecodeError):
-        return redirect(url_for("login"))
+    print("main token_recieved??: ", token_receive)
+    hotel_list = list(db.hotel.find({}, {'_id': False}))
+    return render_template('main.html', rows=hotel_list)
 
 @app.route("/info", methods=["POST"])
 def hotel_post():
