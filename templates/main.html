@@ -66,6 +66,7 @@
         margin: 0px auto 0px auto;
         padding: 20px;
         box-shadow: 0px 0px 3px 0px gray;
+        background-color: rgba(1, 1, 1, 0.3);
         border-radius: 20px;
         display: none;
       }
@@ -110,6 +111,8 @@
 
         padding-top: 20px;
         padding-bottom: 20px;
+        padding-left: 50px;
+        padding-right: 50px;
 
         background-image: linear-gradient(
             0deg,
@@ -214,11 +217,11 @@
       }
 
       function open_box() {
-        $("#post-box").show();
+        $("#post-box").show(2000);
       }
 
       function close_box() {
-        $("#post-box").hide();
+        $("#post-box").hide(2000);
       }
       function reload() {
         window.location.reload();
@@ -292,9 +295,9 @@
           <label for="floatingTextarea2">주소</label>
         </div>
         <div class="input-group mb-3">
-          <label class="input-group-text" for="inputGroupSelect01">별점</label>
+          <label class="input-group-text" for="inputGroupSelect01">등급</label>
           <select class="form-select" id="star">
-            <option selected>-- 선택하기 --</option>
+            <option selected>-- 선택해주세요 --</option>
             <option value="1">⭐</option>
             <option value="2">⭐⭐</option>
             <option value="3">⭐⭐⭐</option>
@@ -303,13 +306,13 @@
           </select>
         </div>
         <div class="mybtns">
-          <button onclick="posting()" type="button" class="btn btn-dark">
-            등록하기
+          <button onclick="posting()" type="button" class="btn btn-light">
+            등록
           </button>
           <button
             onclick="close_box()"
             type="button"
-            class="btn btn-outline-dark"
+            class="btn btn-outline-light"
           >
             닫기
           </button>
