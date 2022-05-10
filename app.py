@@ -11,7 +11,7 @@ from bs4 import BeautifulSoup
 from datetime import datetime, timedelta
 
 from pymongo import MongoClient
-client = MongoClient('mongodb+srv://project:sparta@cluster1.mjh3x.mongodb.net/Cluster1?retryWrites=true&w=majority')
+client = MongoClient('mongodb+srv://test:sparta@cluster0.enrwf.mongodb.net/Cluster0?retryWrites=true&w=majority')
 db = client.hotel
 
 SECRET_KEY = 'sparta'
