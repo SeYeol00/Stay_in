@@ -34,6 +34,54 @@
       crossorigin="anonymous"
     ></script>
     <script>
+      function num2str(count) {
+        if (count > 10000) {
+          return parseInt(count / 1000) + "k";
+        }
+        if (count > 500) {
+          return parseInt(count / 100) / 10 + "k";
+        }
+        if (count == 0) {
+          return "";
+        }
+        return count;
+      }
+      function toggle_like(post_id, type) {
+        console.log(post_id, type);
+        let $a_like = $(`#${post_id} a[aria-label='heart']`);
+        let $i_like = $a_like.find("i");
+        if ($i_like.hasClass("fa-heart")) {
+          $.ajax({
+            type: "POST",
+            url: "/update_like",
+            data: {
+              post_id_give: post_id,
+              type_give: type,
+              action_give: "unlike",
+            },
+            success: function (response) {
+              console.log("unlike");
+              $i_like.addClass("fa-heart-o").removeClass("fa-heart");
+              $a_like.find("span.like-num").text(num2str(response["count"]));
+            },
+          });
+        } else {
+          $.ajax({
+            type: "POST",
+            url: "/update_like",
+            data: {
+              post_id_give: post_id,
+              type_give: type,
+              action_give: "like",
+            },
+            success: function (response) {
+              console.log("like");
+              $i_like.addClass("fa-heart").removeClass("fa-heart-o");
+              $a_like.find("span.like-num").text(num2str(response["count"]));
+            },
+          });
+        }
+      }
       $(document).ready(function () {
         let getLink = window.location.search;
         let num = getLink.split("=")[1];
@@ -78,6 +126,10 @@
                 let post = posts[i];
                 let star = posts[i]["comment_rate"];
                 let star_image = "⭐".repeat(star);
+                let class_heart = post["heart_by_me"] //삼항연산자
+                  ? "fa-heart" //트루면
+                  : "fa-heart-o"; //폴스면
+                let count_heart = post["count_heart"];
                 let html_temp = `<div class="box" id="${post["_id"]}">
                                             <article class="media">
                                                 <div class="media-left">
@@ -86,12 +138,27 @@
                                                 <div class="media-content">
                                                     <div class="content">
                                                         <p>
-                                                            <strong>${post["nickname"]}</strong>
+                                                            <strong>${
+                                                              post["nickname"]
+                                                            }</strong>
                                                             <br>
                                                             ${post["comment"]}
                                                         </p>
                                                         <p>${star_image}</p>
                                                     </div>
+                                                    <nav class="level is-mobile">
+                                                      <div class="level-left">
+                                                          <a class="level-item is-sparta" aria-label="heart" onclick="toggle_like('${
+                                                            post["_id"]
+                                                          }', 'heart')">
+                                                              <span class="icon is-small"><i class="fa ${class_heart}"
+                                                                                             aria-hidden="true"></i></span>&nbsp;<span class="like-num">${num2str(
+                                                                                               count_heart
+                                                                                             )}</span>
+                                                          </a>
+                                                      </div>
+  
+                                                  </nav>
                                                 </div>
                                             </article>
                                         </div>`;
@@ -129,85 +196,21 @@
         position: fixed;
       }
 
-      .btn > button {
-        width: 120px;
-        height: 40px;
-        border-color: #006794;
-      }
-
-      .mycards {
-        margin: 20px auto 0px auto;
-        width: 95%;
-        max-width: 1200px;
-      }
-
-      .mypost {
-        width: 95%;
-        max-width: 500px;
-        margin: 0px auto 0px auto;
-        padding: 20px;
-        box-shadow: 0px 0px 3px 0px gray;
-        border-radius: 20px;
-        display: none;
-      }
-
-      .mybtns {
-        display: flex;
-        flex-direction: row;
-        align-items: center;
-        justify-content: center;
-
-        margin-top: 10px;
-        margin-bottom: 10px;
-      }
-
-      .mybtns > button {
-        margin-right: 10px;
-      }
-
-      .comment > button {
-        background-color: transparent;
-        color: black;
-
-        border-radius: 50px;
-        border: 1px solid black;
-      }
-
-      .form-control {
-        margin-bottom: 20px;
-      }
-
       .main {
-        width: auto;
-        height: 100vh;
+        width: 100%;
+        height: 100%;
         background-image: url("/static/bg.jpg");
         background-repeat: no-repeat;
         background-size: cover;
-
         display: flex;
         flex-direction: column;
         align-items: center;
         justify-content: center;
-
-        padding-top: 20px;
-        padding-bottom: 20px;
+        padding-top: 12rem;
       }
-
-      .bottom {
-        width: 100%;
-        height: 200px;
-        padding: 50px;
-        background-color: #a69f9f;
-        color: white;
-
-        display: flex;
-        flex-direction: row;
-        align-items: center;
-        justify-content: space-between;
-        position: static;
-        bottom: 0;
+      .main > .Bottom_section {
+        margin-top: 20px;
       }
-
       .addbtn {
         object-fit: cover;
         width: 100px;
@@ -218,6 +221,18 @@
         object-fit: cover;
         width: 200px;
         height: 50px;
+      }
+      .section {
+        padding: 1rem 1.5rem;
+        max-width: 750px;
+        margin: auto;
+      }
+      .Top_section {
+        margin-bottom: 30px;
+      }
+      .modal-content {
+        width: 600px;
+        max-width: 80%;
       }
     </style>
     <title>Stay: in</title>
@@ -243,7 +258,7 @@
       </div>
     </div>
     <div class="main">
-      <section class="section">
+      <section class="Top_section">
         <article class="media">
           <figure class="media-left" style="align-self: center">
             <i class="fa-solid fa-user fa-2xl"></i>
@@ -321,7 +336,7 @@
         </div>
         <!-- 입력창 -->
       </section>
-      <section class="section">
+      <section class="Bottom_section">
         <div id="post-box" class="container">
           <div class="box">
             <article class="media">
