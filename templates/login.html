@@ -7,32 +7,86 @@
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
           integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.1/css/bulma.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.1/css/bulma.min.css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
             integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
             crossorigin="anonymous"></script>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.js"></script>
+
+    <link
+      href="https://fonts.googleapis.com/css2?family=Gowun+Dodum&display=swap"
+      rel="stylesheet"
+    />
+
     <style>
-        .mypost{
-            width: 100%;
-            background-image: linear-gradient(0deg, rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('../hotel.png');
-            background-position: center 60%;
-            background-size: cover;
-
-
+        * {
+            font-family: "Gowun Dodum", sans-serif;
         }
+        .bottom {
+        width: 100%;
+        height: 200px;
+        padding: 50px;
+        background-color: #a69f9f;
+        color: white;
+
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+        position: static;
+        bottom: 0;
+      }
+        .mytitle {
+            width: 100%;
+            height: 120px;
+
+            background-color: #006794;
+            color: white;
+
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: center;
+            z-index: 120;
+            position: fixed;
+        }
+        .main {
+        width: auto;
+        height: 100vh;
+        background-image: url("/static/bg.jpg");
+        background-repeat: no-repeat;
+        background-size: cover;
+
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: center;
+
+        padding-top: 20px;
+        padding-bottom: 20px;
+
+        background-image: linear-gradient(
+            0deg,
+            rgba(0, 0, 0, 0.5),
+            rgba(0, 0, 0, 0.5)
+          ),
+          url("https://media-cdn.tripadvisor.com/media/photo-s/16/1a/ea/54/hotel-presidente-4s.jpg");
+        background-position: center;
+        background-size: cover;
+      }
 
         .button.is-sparta {
-            background-color: #e8344e;
+            background-color: #74ade3;
             border-color: transparent;
             color: #fff !important;
         }
 
         .button.is-sparta.is-outlined {
             background-color: transparent;
-            border-color: #e8344e;
-            color: #e8344e !important;
+            border-color: #74ade3;
+            color: #74ade3 !important;
         }
 
         .help {
@@ -94,8 +148,9 @@
                 },
                 success: function (response) {
                     if (response['result'] == 'success') {
-                        $.cookie('mytoken', response['token'], {path: '/'});
-                        window.location.replace("/")
+                        console.log($.cookie)
+                        $.cookie('mytoken', response['token'], {path: '/main'});
+                        window.location.replace("/main")
                         alert("로그인 완료!")
                     } else {
                         alert(response['msg'])
@@ -233,19 +288,18 @@
     <title>Stay: in</title>
 </head>
 <body>
-<section class="hero is-medium is-link mypost">
-  <div class="hero-body">
-    <p class="title">
-      Stay: in
-    </p>
-    <p class="subtitle">
-      내가 원하는 숙소
-    </p>
-  </div>
-
-
-</section>
-<section class="section">
+    <div class="mytitle">
+      <div>
+        <img
+          class="reload-img"
+          onclick="reload()"
+          src="/static/title.png"
+          alt="..."
+        />
+      </div>
+    </div>
+    <div class="main">
+        <section class="section">
     <div class="container">
         <div class="box" style="max-width: 480px;margin:auto">
             <article class="media">
@@ -261,7 +315,8 @@
                             </div>
 
                         </div>
-                        <p id="help-id" class="help is-hidden">아이디는 2-14자의 영문과 숫자와 일부 특수문자(._-)만 입력 가능합니다.</p>                        <p id="help-id-login" class="help is-danger"></p>
+                        <p id="help-id" class="help is-hidden">아이디는 2-14자의 영문과 숫자와 일부 특수문자(._-)만 입력 가능합니다.</p>
+                        <p id="help-id" class="help is-danger"></p>
 
                         <div class="field">
                             <div class="control has-icons-left">
@@ -281,12 +336,12 @@
 
                         </nav>
                         <hr>
-                        <h4 class="mb-3">아직 회원이 아니라면</h4>
+                        <h4 class="mb-3">회원이 아니라면</h4>
                         <nav class="level is-mobile">
 
                             <button class="level-item button is-sparta is-outlined"
                                     onclick="toggle_sign_up()">
-                                회원가입하기
+                                회원가입
                             </button>
                         </nav>
                     </div>
@@ -330,5 +385,15 @@
 
     </div>
 </section>
+    </div>
+    <div class="bottom">
+      <div>
+        <p>데이터 삭제문의 : bbodd2013@naver.com</p>
+        <p>제작자 : 1조</p>
+      </div>
+      <div class="bottom_title">
+        <img class="reload-img" src="/static/title2.png" alt="..." />
+      </div>
+    </div>
 </body>
 </html>
