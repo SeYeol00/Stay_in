@@ -149,7 +149,7 @@
     </style>
     <script>
       $(document).ready(function () {
-        listing();
+        {#listing();#}
       });
 
       function listing() {
@@ -160,22 +160,22 @@
           success: function (response) {
             let rows = response["hotels"];
             for (let i = 0; i < rows.length; i++) {
-              let title = rows[i]["title"];
-              let url = rows[i]["url"];
-              let star = rows[i]["star"];
-              let hotel_address = rows[i]["hotel_address"];
-              let num = rows[i]["num"];
-              let star_image = "⭐".repeat(star);
+              let name = rows[i]["name"];
+              let hotel_image = rows[i]["hotel_image"];
+              let hotel_rate = rows[i]["hotel_rate"];
+              let address = rows[i]["address"];
+              let hotel_id = rows[i]["hotel_id"];
+              let hotel_rate_image = "⭐".repeat(hotel_rate);
 
               let temp_html = `<div class="col">
                                             <div class="card h-100">
-                                                <img src="${url}"
+                                                <img src="${hotel_image}"
                                                      class="card-img-top">
                                                 <div class="card-body">
-                                                    <h5 class="card-title">${title}</h5>
-                                                    <p class="card-text">${hotel_address}</p>
-                                                    <p>${star_image}</p>
-                                                    <p class="comment"><button onclick="to_review(${num})">상세리뷰</button></p>
+                                                    <h5 class="card-title">${name}</h5>
+                                                    <p class="card-text">${address}</p>
+                                                    <p>${hotel_rate_image}</p>
+                                                    <p class="comment"><button onclick="to_review(${hotel_id})">상세리뷰</button></p>
                                                 </div>
                                             </div>
                                         </div>`;
@@ -185,8 +185,8 @@
         });
       }
 
-      function to_review(num) {
-        let hotel_num = num;
+      function to_review(hotel_id) {
+        let hotel_num = hotel_id;
         window.location.href = "/reviews?num=" + hotel_num;
       }
 
@@ -247,7 +247,39 @@
     </div>
     <div class="main">
       <div class="mycards">
-        <div class="row row-cols-1 row-cols-md-4 g-4" id="cards-box"></div>
+        <div class="row row-cols-1 row-cols-md-4 g-4" id="cards-box">
+            {% for row in rows %}
+                {% set hotel_image = row['hotel_image'] %}
+                {% set name = row['name'] %}
+                {% set address = row['address'] %}
+                {% set hotel_rate = row['hotel_rate'] %}
+                {% set hotel_id = row['hotel_id'] %}
+                {% set hotel_rate_image ="" %}
+                {% if hotel_rate == "1" %}
+                    {% set hotel_rate_image = "⭐" %}
+                {% elif hotel_rate == "2" %}
+                    {% set hotel_rate_image = "⭐⭐" %}
+                {% elif hotel_rate == "3" %}
+                    {% set hotel_rate_image = "⭐⭐⭐" %}
+                {% elif hotel_rate == "4" %}
+                    {% set hotel_rate_image = "⭐⭐⭐⭐" %}
+                {% elif hotel_rate == "5" %}
+                    {% set hotel_rate_image = "⭐⭐⭐⭐⭐" %}
+                {% endif %}
+                <div class="col">
+                    <div class="card h-100">
+                        <img src="{{hotel_image}}"
+                             class="card-img-top">
+                        <div class="card-body">
+                            <h5 class="card-title">{{name}}</h5>
+                            <p class="card-text">{{address}}</p>
+                            <p>{{hotel_rate_image}}</p>
+                            <p class="comment"><button onclick="to_review({{hotel_id}})">상세리뷰</button></p>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
       </div>
       <div class="mypost" id="post-box">
         <div class="form-floating mb-3">
@@ -293,7 +325,7 @@
     </div>
     <div class="bottom">
       <div>
-        <p>데이터 삭제문의 : bbodd2013@naver.com</p>
+        <p>문의 : bbodd2013@naver.com</p>
         <p>제작자 : 1조</p>
       </div>
       <div class="bottom_title">

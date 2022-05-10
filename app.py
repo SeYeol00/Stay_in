@@ -19,23 +19,24 @@ def reviews():
 
 @app.route('/main')
 def info():
-    return render_template('main.html')
+    hotel_list = list(db.hotel.find({}, {'_id': False}))
+    return render_template('main.html', rows=hotel_list)
 
 @app.route("/info", methods=["POST"])
 def hotel_post():
     hotel_list = list(db.hotel.find({}, {'_id': False}))
     count = len(hotel_list) + 1
-    url_receive = request.form['url_give']
-    star_receive = request.form['star_give']
-    title_receive = request.form['title_give']
-    hotel_address_receive = request.form['hotel_address_give']
+    hotel_image_receive = request.form['url_give']
+    hotel_rate_receive = request.form['star_give']
+    name_receive = request.form['title_give']
+    address_receive = request.form['hotel_address_give']
 
     doc = {
-        'url':url_receive,
-        'star':star_receive,
-        'title':title_receive,
-        'hotel_address':hotel_address_receive,
-        'num': count
+        'hotel_image':hotel_image_receive,
+        'hotel_rate':hotel_rate_receive,
+        'name':name_receive,
+        'address':address_receive,
+        'hotel_id': count
     }
     db.hotel.insert_one(doc)
 
