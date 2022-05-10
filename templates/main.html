@@ -19,6 +19,7 @@
       integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
       crossorigin="anonymous"
     ></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.js"></script>
 
     <title>Stay:in</title>
 
@@ -248,37 +249,29 @@
     <div class="main">
       <div class="mycards">
         <div class="row row-cols-1 row-cols-md-4 g-4" id="cards-box">
-            {% for row in rows %}
-                {% set hotel_image = row['hotel_image'] %}
-                {% set name = row['name'] %}
-                {% set address = row['address'] %}
-                {% set hotel_rate = row['hotel_rate'] %}
-                {% set hotel_id = row['hotel_id'] %}
-                {% set hotel_rate_image ="" %}
-                {% if hotel_rate == "1" %}
-                    {% set hotel_rate_image = "⭐" %}
-                {% elif hotel_rate == "2" %}
-                    {% set hotel_rate_image = "⭐⭐" %}
-                {% elif hotel_rate == "3" %}
-                    {% set hotel_rate_image = "⭐⭐⭐" %}
-                {% elif hotel_rate == "4" %}
-                    {% set hotel_rate_image = "⭐⭐⭐⭐" %}
-                {% elif hotel_rate == "5" %}
-                    {% set hotel_rate_image = "⭐⭐⭐⭐⭐" %}
-                {% endif %}
-                <div class="col">
-                    <div class="card h-100">
-                        <img src="{{hotel_image}}"
-                             class="card-img-top">
-                        <div class="card-body">
-                            <h5 class="card-title">{{name}}</h5>
-                            <p class="card-text">{{address}}</p>
-                            <p>{{hotel_rate_image}}</p>
-                            <p class="comment"><button onclick="to_review({{hotel_id}})">상세리뷰</button></p>
-                        </div>
-                    </div>
-                </div>
-            {% endfor %}
+          {% for row in rows %} {% set hotel_image = row['hotel_image'] %} {%
+          set name = row['name'] %} {% set address = row['address'] %} {% set
+          hotel_rate = row['hotel_rate'] %} {% set hotel_id = row['hotel_id'] %}
+          {% set hotel_rate_image ="" %} {% if hotel_rate == "1" %} {% set
+          hotel_rate_image = "⭐" %} {% elif hotel_rate == "2" %} {% set
+          hotel_rate_image = "⭐⭐" %} {% elif hotel_rate == "3" %} {% set
+          hotel_rate_image = "⭐⭐⭐" %} {% elif hotel_rate == "4" %} {% set
+          hotel_rate_image = "⭐⭐⭐⭐" %} {% elif hotel_rate == "5" %} {% set
+          hotel_rate_image = "⭐⭐⭐⭐⭐" %} {% endif %}
+          <div class="col">
+            <div class="card h-100">
+              <img src="{{hotel_image}}" class="card-img-top" />
+              <div class="card-body">
+                <h5 class="card-title">{{name}}</h5>
+                <p class="card-text">{{address}}</p>
+                <p>{{hotel_rate_image}}</p>
+                <p class="comment">
+                  <button onclick="to_review({{hotel_id}})">상세리뷰</button>
+                </p>
+              </div>
+            </div>
+          </div>
+          {% endfor %}
         </div>
       </div>
       <div class="mypost" id="post-box">
