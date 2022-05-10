@@ -129,7 +129,7 @@ def posting():
     try:
         print("token_recieved??: ", token_receive)
         payload = jwt.decode(token_receive, SECRET_KEY, algorithms=['HS256'])
-        user_info = db.users.find_one({"user_id": payload["id"]})
+        user_info = db.users.find_one({"user_id": payload["user_id"]})
         comment_receive = request.form["comment_give"]
         comment_rate = request.form["comment_rate_give"]
         hotel_id = request.form["hotel_id_give"]
@@ -148,19 +148,23 @@ def posting():
         return redirect(url_for("reviews"))
 
 
-@app.route("/get_posts", methods=['GET'])
+@app.route("/get_posts", methods=['POST'])
 def get_posts():
-    hotel_id = request.args.get("num")
-    print("hotel_recieved: ",hotel_id)
+    hotel_id = request.form["hotel_id_give"]
+    # hotel_id = request.args.get("num")
+    # print("hotel_id: ", hotel_id)
     token_receive = request.cookies.get('mytoken')
     print("token_receive",token_receive)
+    print("getting1")
     try:
         payload = jwt.decode(token_receive, SECRET_KEY, algorithms=['HS256'])
         posts = list(db.comment.find({'hotel_id': hotel_id}).limit(20))#내림차순 20개 가져오기
         for post in posts:
             post["_id"] = str(post["_id"])#고유값 이것을 항상 스트링으로 변경하기
+        print("getting2")
         return jsonify({"result": "success", "msg": "포스팅을 가져왔습니다.","posts":posts})
     except (jwt.ExpiredSignatureError, jwt.exceptions.DecodeError):
+        print(error)
         return redirect(url_for("reviews"))
 
 
