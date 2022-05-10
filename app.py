@@ -131,7 +131,7 @@ def reviews():
         print("token_recieved??: ", token_receive)
         return render_template('reviews.html')
     except (jwt.ExpiredSignatureError, jwt.exceptions.DecodeError):
-        return redirect(url_for("/"))
+        return redirect(url_for("login"))
 
 #reviews
 @app.route('/posting', methods=['POST'])
@@ -159,7 +159,7 @@ def posting():
         db.comment.insert_one(doc)
         return jsonify({"result": "success", 'msg': '포스팅 성공'})
     except (jwt.ExpiredSignatureError, jwt.exceptions.DecodeError):
-        return redirect(url_for("reviews"))
+        return redirect(url_for("login"))
 
 
 @app.route("/get_posts", methods=['POST'])
@@ -181,7 +181,7 @@ def get_posts():
         return jsonify({"result": "success", "msg": "포스팅을 가져왔습니다.","posts":posts})
     except (jwt.ExpiredSignatureError, jwt.exceptions.DecodeError):
         print(error)
-        return redirect(url_for("reviews"))
+        return redirect(url_for("login"))
 
 @app.route('/update_like', methods=['POST'])
 def update_like():
@@ -204,7 +204,7 @@ def update_like():
         count = db.likes.count_documents({"post_id": post_id_receive, "type": type_receive})
         return jsonify({"result": "success", 'msg': 'updated', "count": count})
     except (jwt.ExpiredSignatureError, jwt.exceptions.DecodeError):
-        return redirect(url_for("reviews"))
+        return redirect(url_for("login"))
 
 
 if __name__ == '__main__':
