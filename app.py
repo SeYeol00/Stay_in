@@ -11,9 +11,10 @@ from bs4 import BeautifulSoup
 from datetime import datetime, timedelta
 
 from pymongo import MongoClient
-client = MongoClient('mongodb+srv://test:sparta@cluster0.enrwf.mongodb.net/Cluster0?retryWrites=true&w=majority')
-db = client.hotel
-
+import certifi
+ca = certifi.where()
+client = MongoClient('mongodb+srv://test:sparta@cluster0.enrwf.mongodb.net/Cluster0?retryWrites=true&w=majority',tlsCAFile=ca)
+db = client.dbsparta
 SECRET_KEY = 'sparta'
 
 @app.route('/')
