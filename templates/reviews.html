@@ -170,10 +170,15 @@
         });
       }
 
+
       function sign_out() {
         $.removeCookie("mytoken", { path: "/" });
         alert("로그아웃!");
         window.location.href = "/login";
+      }
+
+      function go_main() {
+          window.location.href="/main";
       }
     </script>
     <style>
@@ -244,10 +249,10 @@
   </head>
   <body>
     <div class="mytitle">
-      <div>
+      <div class="btn">
         <img
           class="reload-img"
-          onclick="reload()"
+          onclick="go_main()"
           src="/static/title.png"
           alt="..."
         />

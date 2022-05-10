@@ -6,7 +6,6 @@ import datetime
 import hashlib
 
 import requests
-from bs4 import BeautifulSoup
 
 from datetime import datetime, timedelta
 
@@ -22,7 +21,7 @@ def home():
     token_receive = request.cookies.get('mytoken')
     try:
         payload = jwt.decode(token_receive, SECRET_KEY, algorithms=['HS256'])
-        user_info = db.users.find_one({"username": payload["id"]})
+        user_info = db.users.find_one({"user_id": payload["user_id"]})
         return redirect(url_for("info"))
     except jwt.ExpiredSignatureError:
         return redirect(url_for("login"))
@@ -47,7 +46,7 @@ def sign_in():
     if result is not None:
         payload = {
          'user_id': user_id_receive,
-         'exp': datetime.utcnow() + timedelta(seconds=60 * 60 * 24)  # 로그인 24시간 유지
+         'exp': datetime.utcnow() + timedelta(seconds=60 * 60 * 1)  # 로그인 1시간 유지
         }
         token = jwt.encode(payload, SECRET_KEY, algorithm='HS256')
         # .decode('utf-8')
@@ -91,10 +90,8 @@ def check_nickname_dup():
 @app.route('/main')
 def info():
     token_receive = request.cookies.get('mytoken')
-    if token_receive == None:
-        return redirect(url_for("login"))
     try:
-        print("main token_recieved??: ", token_receive)
+        payload = jwt.decode(token_receive, SECRET_KEY, algorithms=['HS256'])
         hotel_list = list(db.hotel.find({}, {'_id': False}))
         return render_template('main.html', rows=hotel_list)
     except (jwt.ExpiredSignatureError, jwt.exceptions.DecodeError):
@@ -103,9 +100,8 @@ def info():
 @app.route("/info", methods=["POST"])
 def hotel_post():
     token_receive = request.cookies.get('mytoken')
-    if token_receive == None:
-        return redirect(url_for("login"))
     try:
+        payload = jwt.decode(token_receive, SECRET_KEY, algorithms=['HS256'])
         hotel_list = list(db.hotel.find({}, {'_id': False}))
         count = len(hotel_list) + 1
         hotel_image_receive = request.form['url_give']
@@ -129,9 +125,8 @@ def hotel_post():
 @app.route("/info", methods=["GET"])
 def hotel_get():
     token_receive = request.cookies.get('mytoken')
-    if token_receive == None:
-        return redirect(url_for("login"))
     try:
+        payload = jwt.decode(token_receive, SECRET_KEY, algorithms=['HS256'])
         print("token_recieved??: ", token_receive)
         hotel_list = list(db.hotel.find({}, {'_id': False}))
         return jsonify({'hotels': hotel_list})
@@ -141,9 +136,10 @@ def hotel_get():
 @app.route('/reviews')
 def reviews():
     token_receive = request.cookies.get('mytoken')
-    if token_receive == None:
-        return redirect(url_for("login"))
+    # if token_receive == None:
+    #     return redirect(url_for("login"))
     try:
+        payload = jwt.decode(token_receive, SECRET_KEY, algorithms=['HS256'])
         #hotel_id = request.args.get("num")
         #print("hotel_recieved: ",hotel_id)
         print("token_recieved??: ", token_receive)
@@ -159,15 +155,15 @@ def reviews():
 @app.route('/posting', methods=['POST'])
 def posting():
     token_receive = request.cookies.get('mytoken')
-    if token_receive == None:
-        return redirect(url_for("login"))
+    # if token_receive == None:
+    #     return redirect(url_for("login"))
     try:
+        payload = jwt.decode(token_receive, SECRET_KEY, algorithms=['HS256'])
         hotel_id = request.form["hotel_id_give"]
         print("hotel_recieved: ",hotel_id)
         
         print(token_receive)
         print("token_recieved??: ", token_receive)
-        payload = jwt.decode(token_receive, SECRET_KEY, algorithms=['HS256'])
         user_info = db.users.find_one({"user_id": payload["user_id"]})
         comment_receive = request.form["comment_give"]
         comment_rate = request.form["comment_rate_give"]
@@ -194,15 +190,15 @@ def posting():
 @app.route("/get_posts", methods=['POST'])
 def get_posts():
     token_receive = request.cookies.get('mytoken')
-    if token_receive == None:
-        return redirect(url_for("login"))
+    # if token_receive == None:
+    #     return redirect(url_for("login"))
     try:
+        payload = jwt.decode(token_receive, SECRET_KEY, algorithms=['HS256'])
         hotel_id = request.form["hotel_id_give"]
         # hotel_id = request.args.get("num")
         # print("hotel_id: ", hotel_id)
         print("token_receive",token_receive)
         print("getting1")
-        payload = jwt.decode(token_receive, SECRET_KEY, algorithms=['HS256'])
         posts = list(db.comment.find({'hotel_id': hotel_id}).limit(20))#내림차순 20개 가져오기
         for post in posts:
             post["_id"] = str(post["_id"])#고유값 이것을 항상 스트링으로 변경하기
@@ -221,8 +217,8 @@ def get_posts():
 @app.route('/update_like', methods=['POST'])
 def update_like():
     token_receive = request.cookies.get('mytoken')
-    if token_receive == None:
-        return redirect(url_for("login"))
+    # if token_receive == None:
+    #     return redirect(url_for("login"))
     try:
         payload = jwt.decode(token_receive, SECRET_KEY, algorithms=['HS256'])
         user_info = db.users.find_one({"user_id": payload["user_id"]})

@@ -162,6 +162,7 @@
           url: "/info",
           data: {},
           success: function (response) {
+              console.log(response)
             let rows = response["hotels"];
             for (let i = 0; i < rows.length; i++) {
               let name = rows[i]["name"];
@@ -237,7 +238,7 @@
 
   <body>
     <div class="mytitle">
-      <div>
+      <div class="btn">
         <img
           class="reload-img"
           onclick="reload()"
