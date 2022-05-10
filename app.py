@@ -19,7 +19,8 @@ def reviews():
 
 @app.route('/main')
 def info():
-    return render_template('main.html')
+    hotel_list = list(db.hotel.find({}, {'_id': False}))
+    return render_template('main.html', rows=hotel_list)
 
 @app.route("/info", methods=["POST"])
 def hotel_post():
