@@ -131,8 +131,10 @@ def posting():
         payload = jwt.decode(token_receive, SECRET_KEY, algorithms=['HS256'])
         user_info = db.users.find_one({"user_id": payload["id"]})
         comment_receive = request.form["comment_give"]
-        comment_rate = request.form["comment_rate"]
-        hotel_id = request.form["hotel_id"]
+        comment_rate = request.form["comment_rate_give"]
+        hotel_id = request.form["hotel_id_give"]
+        print("comment_receive: ", comment_receive)
+        print("comment_rate: ", comment_rate)
         print("hotel_recieved: ",hotel_id)
         doc = {
             "nickname": user_info["nickname"],
