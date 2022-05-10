@@ -112,12 +112,14 @@ def hotel_get():
 
 @app.route('/reviews')
 def reviews():
-    #hotel_id = request.args.get("num")
-    #print("hotel_recieved: ",hotel_id)
-    token_receive = request.cookies.get('mytoken')
-    print("token_recieved??: ", token_receive)
-    return render_template('reviews.html')
-
+    try:
+        #hotel_id = request.args.get("num")
+        #print("hotel_recieved: ",hotel_id)
+        token_receive = request.cookies.get('mytoken')
+        print("token_recieved??: ", token_receive)
+        return render_template('reviews.html')
+    except (jwt.ExpiredSignatureError, jwt.exceptions.DecodeError):
+        return redirect(url_for("/"))
 
 #reviews
 @app.route('/posting', methods=['POST'])
