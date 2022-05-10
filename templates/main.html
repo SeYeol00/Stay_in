@@ -223,6 +223,12 @@
       function reload() {
         window.location.reload();
       }
+
+      function sign_out() {
+          $.removeCookie('mytoken', {path: '/'});
+          alert('로그아웃!')
+          window.location.href = "/"
+      }
     </script>
   </head>
 
@@ -243,7 +249,7 @@
           src="/static/addahotel.png"
           alt="..."
         />
-        <img class="addbtn" src="/static/logout.png" alt="..." />
+        <img onclick="sign_out()" class="addbtn" src="/static/logout.png" alt="..." />
       </div>
     </div>
     <div class="main">
