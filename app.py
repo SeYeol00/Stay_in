@@ -122,8 +122,8 @@ def reviews():
 #reviews
 @app.route('/posting', methods=['POST'])
 def posting():
-    #hotel_id = request.args.get("num")
-    #print("hotel_recieved: ",hotel_id)
+    hotel_id = request.form["hotel_id_give"]
+    print("hotel_recieved: ",hotel_id)
     token_receive = request.cookies.get('mytoken')
     print(token_receive)
     try:
@@ -152,7 +152,7 @@ def posting():
 def get_posts():
     hotel_id = request.args.get("num")
     print("hotel_recieved: ",hotel_id)
-    token_receive = request.cookies.get('token')
+    token_receive = request.cookies.get('mytoken')
     print("token_receive",token_receive)
     try:
         payload = jwt.decode(token_receive, SECRET_KEY, algorithms=['HS256'])
