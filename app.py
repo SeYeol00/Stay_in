@@ -22,7 +22,7 @@ def home():
     token_receive = request.cookies.get('mytoken')
     try:
         payload = jwt.decode(token_receive, SECRET_KEY, algorithms=['HS256'])
-        user_info = db.users.find_one({"user_id": payload["user_id"]})
+        user_info = db.users.find_one({"username": payload["id"]})
         return redirect(url_for("info"))
     except jwt.ExpiredSignatureError:
         return redirect(url_for("login"))
@@ -91,56 +91,81 @@ def check_nickname_dup():
 @app.route('/main')
 def info():
     token_receive = request.cookies.get('mytoken')
-    print("main token_recieved??: ", token_receive)
-    hotel_list = list(db.hotel.find({}, {'_id': False}))
-    return render_template('main.html', rows=hotel_list)
+    if token_receive == None:
+        return redirect(url_for("login"))
+    try:
+        print("main token_recieved??: ", token_receive)
+        hotel_list = list(db.hotel.find({}, {'_id': False}))
+        return render_template('main.html', rows=hotel_list)
+    except (jwt.ExpiredSignatureError, jwt.exceptions.DecodeError):
+        return redirect(url_for("login"))
 
 @app.route("/info", methods=["POST"])
 def hotel_post():
-    hotel_list = list(db.hotel.find({}, {'_id': False}))
-    count = len(hotel_list) + 1
-    hotel_image_receive = request.form['url_give']
-    hotel_rate_receive = request.form['star_give']
-    name_receive = request.form['title_give']
-    address_receive = request.form['hotel_address_give']
+    token_receive = request.cookies.get('mytoken')
+    if token_receive == None:
+        return redirect(url_for("login"))
+    try:
+        hotel_list = list(db.hotel.find({}, {'_id': False}))
+        count = len(hotel_list) + 1
+        hotel_image_receive = request.form['url_give']
+        hotel_rate_receive = request.form['star_give']
+        name_receive = request.form['title_give']
+        address_receive = request.form['hotel_address_give']
 
-    doc = {
-        'hotel_image':hotel_image_receive,
-        'hotel_rate':hotel_rate_receive,
-        'name':name_receive,
-        'address':address_receive,
-        'hotel_id': count
-    }
-    db.hotel.insert_one(doc)
+        doc = {
+            'hotel_image':hotel_image_receive,
+            'hotel_rate':hotel_rate_receive,
+            'name':name_receive,
+            'address':address_receive,
+            'hotel_id': count
+        }
+        db.hotel.insert_one(doc)
 
-    return jsonify({'msg':'등록 완료'})
+        return jsonify({'msg':'등록 완료'})
+    except (jwt.ExpiredSignatureError, jwt.exceptions.DecodeError):
+        return redirect(url_for("login"))
 
 @app.route("/info", methods=["GET"])
 def hotel_get():
     token_receive = request.cookies.get('mytoken')
-    print("token_recieved??: ", token_receive)
-    hotel_list = list(db.hotel.find({}, {'_id': False}))
-    return jsonify({'hotels': hotel_list})
+    if token_receive == None:
+        return redirect(url_for("login"))
+    try:
+        print("token_recieved??: ", token_receive)
+        hotel_list = list(db.hotel.find({}, {'_id': False}))
+        return jsonify({'hotels': hotel_list})
+    except (jwt.ExpiredSignatureError, jwt.exceptions.DecodeError):
+        return redirect(url_for("login"))
 
 @app.route('/reviews')
 def reviews():
+    token_receive = request.cookies.get('mytoken')
+    if token_receive == None:
+        return redirect(url_for("login"))
     try:
         #hotel_id = request.args.get("num")
         #print("hotel_recieved: ",hotel_id)
-        token_receive = request.cookies.get('mytoken')
         print("token_recieved??: ", token_receive)
         return render_template('reviews.html')
     except (jwt.ExpiredSignatureError, jwt.exceptions.DecodeError):
-        return redirect(url_for("/"))
+        return redirect(url_for("login"))
+    except KeyError:
+        return redirect(url_for("login"))
+    except UnboundLocalError:
+        return redirect(url_for("login"))
 
 #reviews
 @app.route('/posting', methods=['POST'])
 def posting():
-    hotel_id = request.form["hotel_id_give"]
-    print("hotel_recieved: ",hotel_id)
     token_receive = request.cookies.get('mytoken')
-    print(token_receive)
+    if token_receive == None:
+        return redirect(url_for("login"))
     try:
+        hotel_id = request.form["hotel_id_give"]
+        print("hotel_recieved: ",hotel_id)
+        
+        print(token_receive)
         print("token_recieved??: ", token_receive)
         payload = jwt.decode(token_receive, SECRET_KEY, algorithms=['HS256'])
         user_info = db.users.find_one({"user_id": payload["user_id"]})
@@ -159,18 +184,24 @@ def posting():
         db.comment.insert_one(doc)
         return jsonify({"result": "success", 'msg': '포스팅 성공'})
     except (jwt.ExpiredSignatureError, jwt.exceptions.DecodeError):
-        return redirect(url_for("reviews"))
+        return redirect(url_for("login"))
+    except KeyError:
+        return redirect(url_for("login"))
+    except UnboundLocalError:
+        return redirect(url_for("login"))
 
 
 @app.route("/get_posts", methods=['POST'])
 def get_posts():
-    hotel_id = request.form["hotel_id_give"]
-    # hotel_id = request.args.get("num")
-    # print("hotel_id: ", hotel_id)
     token_receive = request.cookies.get('mytoken')
-    print("token_receive",token_receive)
-    print("getting1")
+    if token_receive == None:
+        return redirect(url_for("login"))
     try:
+        hotel_id = request.form["hotel_id_give"]
+        # hotel_id = request.args.get("num")
+        # print("hotel_id: ", hotel_id)
+        print("token_receive",token_receive)
+        print("getting1")
         payload = jwt.decode(token_receive, SECRET_KEY, algorithms=['HS256'])
         posts = list(db.comment.find({'hotel_id': hotel_id}).limit(20))#내림차순 20개 가져오기
         for post in posts:
@@ -181,11 +212,17 @@ def get_posts():
         return jsonify({"result": "success", "msg": "포스팅을 가져왔습니다.","posts":posts})
     except (jwt.ExpiredSignatureError, jwt.exceptions.DecodeError):
         print(error)
-        return redirect(url_for("reviews"))
+        return redirect(url_for("login"))
+    except KeyError:
+        return redirect(url_for("login"))
+    except UnboundLocalError:
+        return redirect(url_for("login"))
 
 @app.route('/update_like', methods=['POST'])
 def update_like():
     token_receive = request.cookies.get('mytoken')
+    if token_receive == None:
+        return redirect(url_for("login"))
     try:
         payload = jwt.decode(token_receive, SECRET_KEY, algorithms=['HS256'])
         user_info = db.users.find_one({"user_id": payload["user_id"]})
@@ -204,8 +241,11 @@ def update_like():
         count = db.likes.count_documents({"post_id": post_id_receive, "type": type_receive})
         return jsonify({"result": "success", 'msg': 'updated', "count": count})
     except (jwt.ExpiredSignatureError, jwt.exceptions.DecodeError):
-        return redirect(url_for("reviews"))
-
+        return redirect(url_for("login"))
+    except KeyError:
+        return redirect(url_for("login"))
+    except UnboundLocalError:
+        return redirect(url_for("login"))
 
 if __name__ == '__main__':
     app.run('0.0.0.0', port=5000, debug=True)
