@@ -3,7 +3,10 @@
   <head>
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, shrink-to-fit=no"
+    />
 
     <link
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css"
@@ -11,18 +14,87 @@
       integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC"
       crossorigin="anonymous"
     />
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bulma@0.9.1/css/bulma.min.css"
+    />
+    <link
+      href="//maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css"
+      rel="stylesheet"
+    />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.js"></script>
     <script
       src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
       integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://kit.fontawesome.com/da62db7270.js"
       crossorigin="anonymous"
     ></script>
     <script>
       $(document).ready(function () {
         let getLink = window.location.search;
         let num = getLink.split("=")[1];
-        alert(num);
+        get_posts(num);
       });
+      function to_review() {
+        window.location.href = "/main";
+      }
+      function post() {
+        let comment = $("#textarea-post").val();
+        $.ajax({
+          type: "POST",
+          url: "/posting",
+          data: {
+            comment_give: comment,
+          },
+          success: function (response) {
+            $("#modal-post").removeClass("is-active"); //모달을 닫는다.
+            window.location.reload();
+          },
+        });
+      }
+      function get_posts() {
+        $("#post-box").empty();
+        $.ajax({
+          type: "GET",
+          url: "/get_posts",
+          data: {},
+          success: function (response) {
+            console.log(response["result"]);
+            if (response["result"] == "success") {
+              let posts = response["posts"];
+              console.log(response);
+              for (let i = 0; i < posts.length; i++) {
+                let post = posts[i];
+                let star = posts[i]["comment_rate"];
+                let star_image = "⭐".repeat(star);
+                let html_temp = `<div class="box" id="${post["_id"]}">
+                                            <article class="media">
+                                                <div class="media-left">
+                                                    <i class="fa-solid fa-user fa-2xl"></i>
+                                                </div>
+                                                <div class="media-content">
+                                                    <div class="content">
+                                                        <p>
+                                                            <strong>${post["nickname"]}</strong>
+                                                            <small>${post["hotel_name"]}</small>
+                                                            <br>
+                                                            ${post["comment"]}
+                                                        </p>
+                                                        <p>${star_image}</p>
+                                                    </div>
+                                                </div>
+                                            </article>
+                                        </div>`;
+                $("#post-box").append(html_temp);
+              }
+            }
+          },
+        });
+      }
     </script>
     <style>
       * {
@@ -100,7 +172,7 @@
         background-size: cover;
 
         display: flex;
-        flex-direction: row;
+        flex-direction: column;
         align-items: center;
         justify-content: center;
 
@@ -134,6 +206,9 @@
         width: 200px;
         height: 50px;
       }
+      .section {
+        margin-top: 10px;
+      }
     </style>
     <title>Stay: in</title>
   </head>
@@ -157,6 +232,127 @@
         <img class="addbtn" src="/static/logout.png" alt="..." />
       </div>
     </div>
-    <div class="background"></div>
+    <div class="main">
+      <section class="section">
+        <article class="media">
+          <figure class="media-left" style="align-self: center">
+            <i class="fa-solid fa-user fa-2xl"></i>
+          </figure>
+          <div class="media-content">
+            <div class="field">
+              <p class="control">
+                <input
+                  id="input-post"
+                  class="input is-rounded"
+                  placeholder="여행은 어떠셨나요?"
+                  onclick='$("#modal-post").addClass("is-active")'
+                />
+              </p>
+            </div>
+          </div>
+        </article>
+        <div class="modal" id="modal-post">
+          <div
+            class="modal-background"
+            onclick='$("#modal-post").removeClass("is-active")'
+          ></div>
+          <div class="modal-content">
+            <div class="box">
+              <article class="media">
+                <div class="media-content">
+                  <div class="field">
+                    <p class="control">
+                      <input
+                        class="form-control"
+                        type="text"
+                        placeholder="호텔이름을 입력해주세요"
+                        aria-label="default input example"
+                      />
+                      <textarea
+                        id="textarea-post"
+                        class="textarea"
+                        placeholder="여행은 어떠셨나요?"
+                      ></textarea>
+                    </p>
+                    <div class="input-group mb-3">
+                      <label class="input-group-text" for="inputGroupSelect01"
+                        >별점</label
+                      >
+                      <select class="form-select" id="star">
+                        <option selected>-- 선택하기 --</option>
+                        <option value="1">⭐</option>
+                        <option value="2">⭐⭐</option>
+                        <option value="3">⭐⭐⭐</option>
+                        <option value="4">⭐⭐⭐⭐</option>
+                        <option value="5">⭐⭐⭐⭐⭐</option>
+                      </select>
+                    </div>
+                  </div>
+                  <nav class="level is-mobile">
+                    <div class="level-left"></div>
+                    <div class="level-right">
+                      <div class="level-item">
+                        <a class="button is-sparta" onclick="post()"
+                          >작성하기</a
+                        >
+                      </div>
+                      <div class="level-item">
+                        <a
+                          class="button is-sparta is-outlined"
+                          onclick='$("#modal-post").removeClass("is-active")'
+                          >취소</a
+                        >
+                      </div>
+                    </div>
+                  </nav>
+                </div>
+              </article>
+            </div>
+          </div>
+          <button
+            class="modal-close is-large"
+            aria-label="close"
+            onclick='$("#modal-post").removeClass("is-active")'
+          ></button>
+        </div>
+        <!-- 입력창 -->
+      </section>
+      <section class="section">
+        <div id="post-box" class="container">
+          <div class="box">
+            <article class="media">
+              <div class="media-left">
+                <a class="image is-64x64" href="#">
+                  <i class="fa-solid fa-user fa-2xl"></i>
+                </a>
+              </div>
+              <div class="media-content">
+                <div class="content">
+                  <p>
+                    <strong>홍길동</strong> <small>@username</small>
+                    <small>10분 전</small>
+                    <br />
+                    글을 적는 칸
+                  </p>
+                </div>
+                <nav class="level is-mobile">
+                  <div class="level-left">
+                    <a
+                      class="level-item is-sparta"
+                      aria-label="heart"
+                      onclick="toggle_like('', 'heart')"
+                    >
+                      <span class="icon is-small"
+                        ><i class="fa fa-heart" aria-hidden="true"></i></span
+                      >&nbsp;<span class="like-num">2.7k</span>
+                    </a>
+                  </div>
+                </nav>
+              </div>
+            </article>
+          </div>
+        </div>
+      </section>
+    </div>
   </body>
 </html>
