@@ -12,7 +12,7 @@ from datetime import datetime, timedelta
 from pymongo import MongoClient
 import certifi
 ca = certifi.where()
-client = MongoClient('mongodb+srv://test:sparta@cluster0.enrwf.mongodb.net/Cluster0?retryWrites=true&w=majority',tlsCAFile=ca)
+client = MongoClient('mongodb+srv://test:sparta@cluster0.qrhfi.mongodb.net/Cluster0?retryWrites=true&w=majority',tlsCAFile=ca)
 db = client.dbsparta
 SECRET_KEY = 'sparta'
 
@@ -102,8 +102,10 @@ def hotel_post():
     token_receive = request.cookies.get('mytoken')
     try:
         payload = jwt.decode(token_receive, SECRET_KEY, algorithms=['HS256'])
-        hotel_list = list(db.hotel.find({}, {'_id': False}))
-        count = len(hotel_list) + 1
+        # hotel_list = list(db.hotel.find({}, {'_id': False}))
+        hotel_count = db.count.find_one({})
+        count = hotel_count['count'] +1
+        reviewer = payload["user_id"]
         hotel_image_receive = request.form['url_give']
         hotel_rate_receive = request.form['star_give']
         name_receive = request.form['title_give']
@@ -115,8 +117,11 @@ def hotel_post():
             'name':name_receive,
             'address':address_receive,
             'hotel_id': count
+            'reviewer' : reviewer
         }
         db.hotel.insert_one(doc)
+        db.count.update_one({},{'$set': {'count':count}})
+
 
         return jsonify({'msg':'등록 완료'})
     except (jwt.ExpiredSignatureError, jwt.exceptions.DecodeError):
@@ -130,6 +135,28 @@ def hotel_get():
         print("token_recieved??: ", token_receive)
         hotel_list = list(db.hotel.find({}, {'_id': False}))
         return jsonify({'hotels': hotel_list})
+    except (jwt.ExpiredSignatureError, jwt.exceptions.DecodeError):
+        return redirect(url_for("login"))
+
+@app.route("/info/delete", methods=["POST"])
+def hotel_delete():
+    token_receive = request.cookies.get('mytoken')
+    try:
+        payload = jwt.decode(token_receive, SECRET_KEY, algorithms=['HS256'])
+        reviewer = payload["user_id"]
+        hotel_id_receive = request.form['hotel_id_give']
+        card_info = db.hotel.find_one({'hotel_id':hotel_id_receive})
+        card_reviewer = card_info['reviewer']
+        if reviewer == card_reviewer:
+            db.hotel.delete_one({'hotel_id':hotel_id_receive})
+            return jsonify({'msg':'삭제 완료'})
+        else
+
+        db.hotel.insert_one(doc)
+        db.count.update_one({},{'$set': {'count':count}})
+
+
+        return jsonify({'msg':'등록 완료'})
     except (jwt.ExpiredSignatureError, jwt.exceptions.DecodeError):
         return redirect(url_for("login"))
 

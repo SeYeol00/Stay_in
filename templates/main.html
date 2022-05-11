@@ -221,6 +221,21 @@
         });
       }
 
+      function delete_review(hotel_id) {
+          $.ajax({
+          type: "POST",
+          url: "/info/delete",
+          data: {
+            hotel_id_give: hotel_id,
+          },
+          success: function (response) {
+            alert(response["msg"]);
+            window.location.reload();
+          },
+        });
+
+      }
+
       function open_box() {
         $("#post-box").show(2000);
       }
