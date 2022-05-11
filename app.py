@@ -158,6 +158,7 @@ def hotel_delete():
 
         if reviewer == card_reviewer:
             db.hotel.delete_one({'hotel_id':int(hotel_id_receive)})
+            db.comment.delete_many({'hotel_id':hotel_id_receive})
             return jsonify({'msg':'삭제 완료'})
         else:
             return jsonify({'msg':'작성자만 삭제가능합니다.'})
