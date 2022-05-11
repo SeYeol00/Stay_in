@@ -107,6 +107,7 @@
           },
           success: function (response) {
             $("#modal-post").removeClass("is-active"); //모달을 닫는다.
+            window.location.reload();
           },
         });
       }
@@ -217,7 +218,7 @@
 
       .main {
         width: 100%;
-        height: 100vh;
+        height: 150%;
         background-image: linear-gradient(
             0deg,
             rgba(0, 0, 0, 0.5),
