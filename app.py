@@ -111,7 +111,6 @@ def hotel_post():
             else:
                 count = hotel_list[-1]["hotel_id"] + 1
         except(IndexError):
-            print("에러")
             count = 0
         reviewer = payload["user_id"]
         hotel_image_receive = request.form['url_give']
@@ -137,7 +136,6 @@ def hotel_get():
     token_receive = request.cookies.get('mytoken')
     try:
         payload = jwt.decode(token_receive, SECRET_KEY, algorithms=['HS256'])
-        print("token_recieved??: ", token_receive)
         hotel_list = list(db.hotel.find({}, {'_id': False}))
         return jsonify({'hotels': hotel_list})
     except (jwt.ExpiredSignatureError, jwt.exceptions.DecodeError):
@@ -149,14 +147,9 @@ def hotel_delete():
     try:
         payload = jwt.decode(token_receive, SECRET_KEY, algorithms=['HS256'])
         reviewer = payload["user_id"]
-        print(reviewer)
         hotel_id_receive = request.form['hotel_id_give']
-        print(hotel_id_receive)
         card_info = db.hotel.find_one({'hotel_id':int(hotel_id_receive)})
-        print(card_info)
         card_reviewer = card_info['reviewer']
-        print(card_reviewer)
-
         if reviewer == card_reviewer:
             db.hotel.delete_one({'hotel_id':int(hotel_id_receive)})
             db.comment.delete_many({'hotel_id':hotel_id_receive})
