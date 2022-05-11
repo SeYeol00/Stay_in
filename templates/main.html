@@ -48,12 +48,6 @@
         position: fixed;
       }
 
-      .btn > button {
-        width: 120px;
-        height: 40px;
-        border-color: #006794;
-      }
-
       .mycards {
         margin: 20px auto 0px auto;
         width: 95%;
@@ -154,6 +148,7 @@
       .card-img-top {
           height: 200px;
       }
+
     </style>
     <script>
       $(document).ready(function () {
@@ -307,9 +302,9 @@
                 <p class="card-text">{{address}}</p>
                 <p>{{hotel_rate_image}}</p>
                 <p class="comment">
-                  <button onclick="to_review({{hotel_id}})">상세리뷰</button>
+                  <button type="button" class="btn btn-outline-primary" onclick="to_review({{hotel_id}})">상세리뷰</button>
                   {% if reviewer == user_id %}
-                    <button onclick="delete_review({{ hotel_id }})">삭제</button>
+                    <button type="button" class="btn btn-outline-danger" onclick="delete_review({{ hotel_id }})">삭제</button>
                   {% endif %}
                 </p>
               </div>
