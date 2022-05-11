@@ -123,7 +123,7 @@
             if (response["result"] == "success") {
               let posts = response["posts"];
               let hotel = response["hotel"];
-              console.log(hotel);
+              let check_nickname = response["check_nickname"]
               let hotel_name = hotel[0];
               let hotel_image = hotel[1];
 
@@ -145,7 +145,45 @@
                   ? "fa-heart" //트루면
                   : "fa-heart-o"; //폴스면
                 let count_heart = post["count_heart"];
-                let html_temp = `<div class="box" id="${post["_id"]}">
+                let html_temp
+                console.log(posts[i])
+                if(check_nickname == post["nickname"]){
+                                    html_temp = `<div class="box" id="${post["_id"]}">
+                                            <article class="media">
+                                                <div class="media-left" style="color:aqua">
+                                                    <i class="fa-solid fa-user fa-2xl"></i>
+                                                </div>
+                                                <div class="media-content">
+                                                    <div class="content">
+                                                        <p>
+                                                            <strong>${
+                                                              post["nickname"]
+                                                            }</strong>
+                                                            <br>
+                                                            ${post["comment"]}
+                                                        </p>
+                                                        <p>${star_image}</p>
+                                                    </div>
+                                                    <nav class="level is-mobile">
+                                                      <div class="level-left">
+                                                          <a class="level-item is-sparta" aria-label="heart" onclick="toggle_like('${
+                                                            post["_id"]
+                                                          }', 'heart')">
+                                                              <span class="icon is-small"><i class="fa ${class_heart}"
+                                                                                             aria-hidden="true"></i></span>&nbsp;<span class="like-num">${num2str(
+                                                                                               count_heart
+                                                                )}</span>
+                                                          </a>
+                                                      </div>
+                                                    <div class="leve-right">
+                                                        <button class="button is-danger is-light is-small" onclick="delete_review('${post["_id"]}')">삭제</button>
+                                                    </div>
+                                                  </nav>
+                                                </div>
+                                            </article>
+                                        </div>`;
+                } else{
+                    html_temp = `<div class="box" id="${post["_id"]}">
                                             <article class="media">
                                                 <div class="media-left" style="color:aqua">
                                                     <i class="fa-solid fa-user fa-2xl"></i>
@@ -177,6 +215,7 @@
                                                 </div>
                                             </article>
                                         </div>`;
+                }
                 $("#post-box").append(html_temp);
               }
 
@@ -194,6 +233,20 @@
 
       function go_main() {
         window.location.href = "/main";
+      }
+
+      function delete_review(post_id){
+          $.ajax({
+          type: "POST",
+          url: "/review_delete",
+          data: {
+            post_id_give:post_id
+          },
+          success: function (response) {
+              alert(response["msg"])
+            window.location.reload();
+          },
+        });
       }
     </script>
     <style>

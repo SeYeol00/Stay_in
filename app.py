@@ -9,6 +9,7 @@ import requests
 
 from datetime import datetime, timedelta
 
+from bson.objectid import ObjectId
 from pymongo import MongoClient
 import certifi
 ca = certifi.where()
@@ -229,6 +230,8 @@ def get_posts():
         hotel_id = request.form["hotel_id_give"]
         # hotel_id = request.args.get("num")
         # print("hotel_id: ", hotel_id)
+        user_info = db.users.find_one({"user_id": payload["user_id"]})
+        check_nickname = user_info["nickname"]
         print("token_receive",token_receive)
         print("getting1")
         print("hotel_id: ", hotel_id)
@@ -241,10 +244,8 @@ def get_posts():
             post["_id"] = str(post["_id"])#고유값 이것을 항상 스트링으로 변경하기
             post["count_heart"] = db.likes.count_documents({"post_id": post["_id"], "type": "heart"})
             post["heart_by_me"] = bool(db.likes.find_one({"post_id": post["_id"], "type": "heart", "username": payload['user_id']}))
-        print("getting2")
-        return jsonify({"result": "success", "msg": "포스팅을 가져왔습니다.","posts":posts,"hotel":hotel_parse})
+        return jsonify({"result": "success", "msg": "포스팅을 가져왔습니다.","posts":posts,"hotel":hotel_parse,"check_nickname":check_nickname})
     except (jwt.ExpiredSignatureError, jwt.exceptions.DecodeError):
-        print(error)
         return redirect(url_for("login"))
     except KeyError:
         return redirect(url_for("login"))
@@ -278,6 +279,18 @@ def update_like():
     except KeyError:
         return redirect(url_for("login"))
     except UnboundLocalError:
+        return redirect(url_for("login"))
+
+@app.route('/review_delete', methods=['POST'])
+def deleteone_review():
+    token_receive = request.cookies.get('mytoken')
+    try:
+        payload = jwt.decode(token_receive, SECRET_KEY, algorithms=['HS256'])
+        post_id = request.form["post_id_give"]
+        db.comment.delete_one({"_id":ObjectId(post_id)})
+        db.likes.delete_many({"post_id":post_id})
+        return jsonify({'msg': '삭제 완료'})
+    except (jwt.ExpiredSignatureError, jwt.exceptions.DecodeError):
         return redirect(url_for("login"))
 
 if __name__ == '__main__':
