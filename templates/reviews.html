@@ -170,7 +170,6 @@
         });
       }
 
-
       function sign_out() {
         $.removeCookie("mytoken", { path: "/" });
         alert("로그아웃!");
@@ -178,7 +177,7 @@
       }
 
       function go_main() {
-          window.location.href="/main";
+        window.location.href = "/main";
       }
     </script>
     <style>
@@ -352,9 +351,7 @@
         <!-- 입력창 -->
       </section>
       <section class="Bottom_section">
-        <div id="post-box" class="container">
-          <div class="box">
-        </div>
+        <div id="post-box" class="container"></div>
       </section>
     </div>
   </body>
