@@ -203,7 +203,7 @@ def get_posts():
         hotel_id_int = int(hotel_id)
         posts = list(db.comment.find({'hotel_id': hotel_id}).limit(20))#내림차순 20개 가져오기
         hotel = list(db.hotel.find({'hotel_id': hotel_id_int}))
-        hotel_parse = hotel[0]['name']
+        hotel_parse = [hotel[0]['name'],hotel[0]['hotel_image']]
         print("hotel:",hotel)
         for post in posts:
             post["_id"] = str(post["_id"])#고유값 이것을 항상 스트링으로 변경하기

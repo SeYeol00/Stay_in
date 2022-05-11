@@ -123,16 +123,18 @@
               let posts = response["posts"];
               let hotel = response["hotel"];
               console.log(hotel);
-              let hotel_name_attach = `<section class="hero is-info">
-                                        <div class="hero-body">
-                                          <p class="title">
-                                            ${hotel}
-                                          </p>
-                                          <p class="subtitle">
-                                            -호텔 이름
-                                          </p>
+              let hotel_name = hotel[0];
+              let hotel_image = hotel[1];
+
+              let hotel_name_attach = `<div class="col">
+                                        <div class="card h-100">
+                                            <img src="${hotel_image}"
+                                                class="card-img-top">
+                                            <div class="card-body" style="text-align: center">
+                                                <h5 class="card-title"><strong>${hotel_name}</strong></h5>
+                                            </div>
                                         </div>
-                                      </section>`;
+                                    </div>`;
               $("#hotel_nameCard").append(hotel_name_attach);
               for (let i = 0; i < posts.length; i++) {
                 let post = posts[i];
@@ -215,7 +217,7 @@
 
       .main {
         width: 100%;
-        height: 100%;
+        height: 100vh;
         background-image: linear-gradient(
             0deg,
             rgba(0, 0, 0, 0.5),
@@ -258,10 +260,6 @@
         margin-top: 30px;
         margin-bottom: 20px;
       }
-      .hotel_name {
-        margin-top: 10px;
-        margin-bottom: 20px;
-      }
       .hero is-info {
         display: flex;
         flex-direction: column;
@@ -270,6 +268,10 @@
       }
       .fa-solid fa-user fa-2xl {
         color: aqua;
+      }
+      .col {
+        width: 300px;
+        height: 250px;
       }
     </style>
     <title>Stay: in</title>
