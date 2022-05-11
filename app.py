@@ -199,13 +199,18 @@ def get_posts():
         # print("hotel_id: ", hotel_id)
         print("token_receive",token_receive)
         print("getting1")
+        print("hotel_id: ", hotel_id)
+        hotel_id_int = int(hotel_id)
         posts = list(db.comment.find({'hotel_id': hotel_id}).limit(20))#내림차순 20개 가져오기
+        hotel = list(db.hotel.find({'hotel_id': hotel_id_int}))
+        hotel_parse = hotel[0]['name']
+        print("hotel:",hotel)
         for post in posts:
             post["_id"] = str(post["_id"])#고유값 이것을 항상 스트링으로 변경하기
             post["count_heart"] = db.likes.count_documents({"post_id": post["_id"], "type": "heart"})
             post["heart_by_me"] = bool(db.likes.find_one({"post_id": post["_id"], "type": "heart", "username": payload['user_id']}))
         print("getting2")
-        return jsonify({"result": "success", "msg": "포스팅을 가져왔습니다.","posts":posts})
+        return jsonify({"result": "success", "msg": "포스팅을 가져왔습니다.","posts":posts,"hotel":hotel_parse})
     except (jwt.ExpiredSignatureError, jwt.exceptions.DecodeError):
         print(error)
         return redirect(url_for("login"))
