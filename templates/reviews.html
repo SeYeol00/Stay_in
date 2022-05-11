@@ -243,6 +243,10 @@
         width: 600px;
         max-width: 80%;
       }
+      .backword {
+        margin-top: 30px;
+        margin-bottom: 20px;
+      }
     </style>
     <title>Stay: in</title>
   </head>
@@ -271,6 +275,7 @@
         />
       </div>
     </div>
+
     <div class="main">
       <section class="Top_section">
         <article class="media">
@@ -351,8 +356,19 @@
         <!-- 입력창 -->
       </section>
       <section class="Bottom_section">
-        <div id="post-box" class="container"></div>
+        <div id="post-box" class="container">
+          {% for post in posts %} {% if star == "1" %} {% set star_image = "⭐"
+          %} {% elif star == "2" %} {% set star_image = "⭐⭐" %} {% elif star
+          == "3" %} {% set star_image = "⭐⭐⭐" %} {% elif star == "4" %} {%
+          set star_image = "⭐⭐⭐⭐" %} {% elif star == "5" %} {% set
+          star_image = "⭐⭐⭐⭐⭐" %} {% endif %}{% endfor %}
+        </div>
       </section>
+      <div class="backword">
+        <button type="button" class="btn btn-outline-info">
+          메인으로 돌아가기
+        </button>
+      </div>
     </div>
   </body>
 </html>
