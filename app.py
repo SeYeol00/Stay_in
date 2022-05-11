@@ -93,7 +93,8 @@ def info():
     try:
         payload = jwt.decode(token_receive, SECRET_KEY, algorithms=['HS256'])
         hotel_list = list(db.hotel.find({}, {'_id': False}))
-        return render_template('main.html', rows=hotel_list)
+        reviewer = payload["user_id"]
+        return render_template('main.html', rows=hotel_list, user_id=reviewer)
     except (jwt.ExpiredSignatureError, jwt.exceptions.DecodeError):
         return redirect(url_for("login"))
 
@@ -103,8 +104,16 @@ def hotel_post():
     try:
         payload = jwt.decode(token_receive, SECRET_KEY, algorithms=['HS256'])
         # hotel_list = list(db.hotel.find({}, {'_id': False}))
-        hotel_count = db.count.find_one({})
-        count = hotel_count['count'] +1
+        hotel_list = list(db.hotel.find({}))
+        print(hotel_list)
+        try:
+            if hotel_list[-1]["hotel_id"] is None:
+                count = 0
+            else:
+                count = hotel_list[-1]["hotel_id"] + 1
+        except(IndexError):
+            print("에러")
+            count = 0
         reviewer = payload["user_id"]
         hotel_image_receive = request.form['url_give']
         hotel_rate_receive = request.form['star_give']
@@ -116,7 +125,7 @@ def hotel_post():
             'hotel_rate':hotel_rate_receive,
             'name':name_receive,
             'address':address_receive,
-            'hotel_id': count
+            'hotel_id': count,
             'reviewer' : reviewer
         }
         db.hotel.insert_one(doc)
@@ -144,19 +153,19 @@ def hotel_delete():
     try:
         payload = jwt.decode(token_receive, SECRET_KEY, algorithms=['HS256'])
         reviewer = payload["user_id"]
+        print(reviewer)
         hotel_id_receive = request.form['hotel_id_give']
-        card_info = db.hotel.find_one({'hotel_id':hotel_id_receive})
+        print(hotel_id_receive)
+        card_info = db.hotel.find_one({'hotel_id':int(hotel_id_receive)})
+        print(card_info)
         card_reviewer = card_info['reviewer']
+        print(card_reviewer)
+
         if reviewer == card_reviewer:
-            db.hotel.delete_one({'hotel_id':hotel_id_receive})
+            db.hotel.delete_one({'hotel_id':int(hotel_id_receive)})
             return jsonify({'msg':'삭제 완료'})
-        else
-
-        db.hotel.insert_one(doc)
-        db.count.update_one({},{'$set': {'count':count}})
-
-
-        return jsonify({'msg':'등록 완료'})
+        else:
+            return jsonify({'msg':'작성자만 삭제가능합니다.'})
     except (jwt.ExpiredSignatureError, jwt.exceptions.DecodeError):
         return redirect(url_for("login"))
 

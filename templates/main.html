@@ -174,8 +174,7 @@
               let hotel_rate = rows[i]["hotel_rate"];
               let address = rows[i]["address"];
               let hotel_id = rows[i]["hotel_id"];
-              let hotel_rate_image = "⭐".repeat(hotel_rate);
-
+              let hotel_rate_image = "⭐".repeat(hotel_rate)
               let temp_html = `<div class="col">
                                             <div class="card h-100">
                                                 <img src="${hotel_image}"
@@ -283,9 +282,11 @@
     <div class="main">
       <div class="mycards">
         <div class="row row-cols-1 row-cols-md-4 g-4" id="cards-box">
-          {% for row in rows %} {% set hotel_image = row['hotel_image'] %} {%
-          set name = row['name'] %} {% set address = row['address'] %} {% set
-          hotel_rate = row['hotel_rate'] %} {% set hotel_id = row['hotel_id'] %}
+          {% for row in rows %} {% set hotel_image = row['hotel_image'] %}
+              {% set name = row['name'] %} {% set address = row['address'] %}
+              {% set hotel_rate = row['hotel_rate'] %}
+              {% set hotel_id = row['hotel_id'] %}
+              {% set reviewer = row['reviewer'] %}
           {% set hotel_rate_image ="" %} {% if hotel_rate == "1" %} {% set
           hotel_rate_image = "⭐" %} {% elif hotel_rate == "2" %} {% set
           hotel_rate_image = "⭐⭐" %} {% elif hotel_rate == "3" %} {% set
@@ -301,6 +302,9 @@
                 <p>{{hotel_rate_image}}</p>
                 <p class="comment">
                   <button onclick="to_review({{hotel_id}})">상세리뷰</button>
+                  {% if reviewer == user_id %}
+                    <button onclick="delete_review({{ hotel_id }})">삭제</button>
+                  {% endif %}
                 </p>
               </div>
             </div>
