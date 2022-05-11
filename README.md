@@ -18,7 +18,7 @@ Role
 ```
 ```
 조원 박민수
-Role
+Role 호텔등록 메인페이지 UI 및 서버api 제작
 ```
 ```
 조원 박세열
@@ -104,9 +104,166 @@ Role 세부 리뷰 페이지 총괄 및 데이터 베이스 관리
 
 ### 박민수
 ### main.html 및 해당 서버 기능 app.py
+<img width="1921" alt="image" src="https://user-images.githubusercontent.com/95006095/167842528-f9d03306-80f6-42c5-9d84-3bfb92083c6d.png">
+
+서버측 코드
+```
+@app.route('/main')
+def info():
+    token_receive = request.cookies.get('mytoken')
+    try:
+        payload = jwt.decode(token_receive, SECRET_KEY, algorithms=['HS256'])
+        hotel_list = list(db.hotel.find({}, {'_id': False}))
+        reviewer = payload["user_id"]
+        return render_template('main.html', rows=hotel_list, user_id=reviewer)
+    except (jwt.ExpiredSignatureError, jwt.exceptions.DecodeError):
+        return redirect(url_for("login"))
+```
+* 페이지로 들어 올 때 로그인유효성 검사를 위해 쿠키에서 토큰정보를 확인 후 통과시 등록되어있는 호텔데이터와 본인의 아이디정보를 가지고 메인페이지로보내주고 토큰정보가 없거나 유효하지않다면 로그인페이지로 돌아간다.
+* 데이터베이스에 등록되어 있는 호텔정보를 Jinja2언어로 클라이언트에서 받기 위해 이동시에 파라메터로 보내준다.
+* 클라이언트 측에서 작성자 본인이 아니면 삭제버튼이 안보이게 하기위해 본인의 아이디 정보를 파라메터로 보내준다.
+```
+@app.route("/info", methods=["POST"])
+def hotel_post():
+    token_receive = request.cookies.get('mytoken')
+    try:
+        payload = jwt.decode(token_receive, SECRET_KEY, algorithms=['HS256'])
+        hotel_list = list(db.hotel.find({}))
+        try:
+            if hotel_list[-1]["hotel_id"] is None:
+                count = 0
+            else:
+                count = hotel_list[-1]["hotel_id"] + 1
+        except(IndexError):
+            print("에러")
+            count = 0
+        reviewer = payload["user_id"]
+        hotel_image_receive = request.form['url_give']
+        hotel_rate_receive = request.form['star_give']
+        name_receive = request.form['title_give']
+        address_receive = request.form['hotel_address_give']
+
+        doc = {
+            'hotel_image':hotel_image_receive,
+            'hotel_rate':hotel_rate_receive,
+            'name':name_receive,
+            'address':address_receive,
+            'hotel_id': count,
+            'reviewer' : reviewer
+        }
+        db.hotel.insert_one(doc)
+        return jsonify({'msg':'등록 완료'})
+    except (jwt.ExpiredSignatureError, jwt.exceptions.DecodeError):
+        return redirect(url_for("login"))
+
+```
+* 호텔등록코드부분, 이전코드와 마찬가지로 토큰으로 유효성검사를하고 데이터베이스의 호텔id와 중복되지 않게 id를 할당하고 클라이언트 측에서 보내준 입력데이터를 포스팅한다.
+```
+@app.route("/info/delete", methods=["POST"])
+def hotel_delete():
+    token_receive = request.cookies.get('mytoken')
+    try:
+        payload = jwt.decode(token_receive, SECRET_KEY, algorithms=['HS256'])
+        reviewer = payload["user_id"]
+        hotel_id_receive = request.form['hotel_id_give']
+        card_info = db.hotel.find_one({'hotel_id':int(hotel_id_receive)})
+        card_reviewer = card_info['reviewer']
+        if reviewer == card_reviewer:
+            db.hotel.delete_one({'hotel_id':int(hotel_id_receive)})
+            return jsonify({'msg':'삭제 완료'})
+        else:
+            return jsonify({'msg':'작성자만 삭제가능합니다.'})
+    except (jwt.ExpiredSignatureError, jwt.exceptions.DecodeError):
+        return redirect(url_for("login"))
+```
+* 포스팅 삭제를 위한 서버코드, 마찬가지로 로그인이 되어있는지 검사하고 본인이 등록한 호텔데이터인지 확인후 삭제한다.
 
 
+```
+function to_review(hotel_id) {
+        let hotel_num = hotel_id;
+        window.location.href = "/reviews?num=" + hotel_num;
+      }
+```
+* 호텔카드마다 붙어있는 버튼을 누를 시 호텔아이디를 가지고 리뷰페이지로 넘어가기 위한 클라이언트 코드.
+```
+ function posting() {
+        let url = $("#url").val();
+        let star = $("#star").val();
+        let title = $("#title").val();
+        let hotel_address = $("#address").val();
 
+        $.ajax({
+          type: "POST",
+          url: "/info",
+          data: {
+            url_give: url,
+            star_give: star,
+            title_give: title,
+            hotel_address_give: hotel_address,
+          },
+          success: function (response) {
+            alert(response["msg"]);
+            window.location.reload();
+          },
+        });
+      }
+```
+*호텔 등록창에 입력한 데이터를 포스트 요청ajax코드를 사용하여 서버측으로 넘겨준다.
+```
+function delete_review(hotel_id) {
+        $.ajax({
+          type: "POST",
+          url: "/info/delete",
+          data: {
+            hotel_id_give: hotel_id,
+          },
+          success: function (response) {
+            alert(response["msg"]);
+            window.location.reload();
+          },
+        });
+      }
+```
+* 삭제할 호텔아이디를 서버측으로 넘겨주는 포스트요청ajax코드이다.
+
+```
+{% for row in rows %} {% set hotel_image = row['hotel_image'] %}
+              {% set name = row['name'] %} {% set address = row['address'] %}
+              {% set hotel_rate = row['hotel_rate'] %}
+              {% set hotel_id = row['hotel_id'] %}
+              {% set reviewer = row['reviewer'] %}
+          {% set hotel_rate_image ="" %} 
+              {% if hotel_rate == "1" %} 
+                  {% set hotel_rate_image = "⭐" %} 
+              {% elif hotel_rate == "2" %} 
+                  {% set hotel_rate_image = "⭐⭐" %} 
+              {% elif hotel_rate == "3" %} 
+                  {% set hotel_rate_image = "⭐⭐⭐" %} 
+              {% elif hotel_rate == "4" %} 
+                  {% set hotel_rate_image = "⭐⭐⭐⭐" %} 
+              {% elif hotel_rate == "5" %} 
+                  {% set hotel_rate_image = "⭐⭐⭐⭐⭐" %} 
+              {% endif %}
+          <div class="col">
+            <div class="card h-100">
+              <img src="{{hotel_image}}" class="card-img-top" />
+              <div class="card-body">
+                <h5 class="card-title">{{name}}</h5>
+                <p class="card-text">{{address}}</p>
+                <p>{{hotel_rate_image}}</p>
+                <p class="comment">
+                  <button onclick="to_review({{hotel_id}})">상세리뷰</button>
+                  {% if reviewer == user_id %}
+                    <button onclick="delete_review({{ hotel_id }})">삭제</button>
+                  {% endif %}
+                </p>
+              </div>
+            </div>
+          </div>
+          {% endfor %}
+```
+* 서버측에서 넘겨준 파라메터 데이터를 Jinja2방식을 사용하여 포스팅카드로 나타내는 부분의 코드이다.
 
 
 ### 박세열

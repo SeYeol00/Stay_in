@@ -103,9 +103,7 @@ def hotel_post():
     token_receive = request.cookies.get('mytoken')
     try:
         payload = jwt.decode(token_receive, SECRET_KEY, algorithms=['HS256'])
-        # hotel_list = list(db.hotel.find({}, {'_id': False}))
         hotel_list = list(db.hotel.find({}))
-        print(hotel_list)
         try:
             if hotel_list[-1]["hotel_id"] is None:
                 count = 0
@@ -129,9 +127,6 @@ def hotel_post():
             'reviewer' : reviewer
         }
         db.hotel.insert_one(doc)
-        db.count.update_one({},{'$set': {'count':count}})
-
-
         return jsonify({'msg':'등록 완료'})
     except (jwt.ExpiredSignatureError, jwt.exceptions.DecodeError):
         return redirect(url_for("login"))

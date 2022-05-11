@@ -287,12 +287,18 @@
               {% set hotel_rate = row['hotel_rate'] %}
               {% set hotel_id = row['hotel_id'] %}
               {% set reviewer = row['reviewer'] %}
-          {% set hotel_rate_image ="" %} {% if hotel_rate == "1" %} {% set
-          hotel_rate_image = "⭐" %} {% elif hotel_rate == "2" %} {% set
-          hotel_rate_image = "⭐⭐" %} {% elif hotel_rate == "3" %} {% set
-          hotel_rate_image = "⭐⭐⭐" %} {% elif hotel_rate == "4" %} {% set
-          hotel_rate_image = "⭐⭐⭐⭐" %} {% elif hotel_rate == "5" %} {% set
-          hotel_rate_image = "⭐⭐⭐⭐⭐" %} {% endif %}
+          {% set hotel_rate_image ="" %}
+              {% if hotel_rate == "1" %}
+                  {% set hotel_rate_image = "⭐" %}
+              {% elif hotel_rate == "2" %}
+                  {% set hotel_rate_image = "⭐⭐" %}
+              {% elif hotel_rate == "3" %}
+                  {% set hotel_rate_image = "⭐⭐⭐" %}
+              {% elif hotel_rate == "4" %}
+                  {% set hotel_rate_image = "⭐⭐⭐⭐" %}
+              {% elif hotel_rate == "5" %}
+                  {% set hotel_rate_image = "⭐⭐⭐⭐⭐" %}
+              {% endif %}
           <div class="col">
             <div class="card h-100">
               <img src="{{hotel_image}}" class="card-img-top" />
