@@ -111,6 +111,7 @@ Role 세부 리뷰 페이지 총괄 및 데이터 베이스 관리
 
 ### 박세열
 ### reviews.html 및 해당 서버 기능 app.py
+![image](https://user-images.githubusercontent.com/79959576/167813673-9f50021b-1ea5-43fe-bfaf-977c42bb7819.png)
 
 
 
