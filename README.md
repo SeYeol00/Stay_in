@@ -14,7 +14,7 @@
 ## 팀원 및 역할 분담
 ```
 조장 이은총
-Role
+Role 로그인/회원가입 페이지 및 세부 기능 업데이트
 ```
 ```
 조원 박민수
@@ -25,8 +25,13 @@ Role 호텔등록 메인페이지 UI 및 서버api 제작
 Role 세부 리뷰 페이지 총괄 및 데이터 베이스 관리
 ```
 ## 프로젝트 소개
+자신이 갔다온 호텔을 추가하여 리뷰를 남길 수 있는 사이트입니다.
 
+## S.A. Link
+S.A. Link:<https://velog.io/@tlfqjrjs1234/Chapter11%EC%A1%B0-S.AStarting-Assignment>
 
+## 시연 영상
+Youtube Link: <https://youtu.be/gIOlvXtVCNE/>
 <hr>
 
 ## 1. 개발 환경
@@ -41,6 +46,7 @@ Role 세부 리뷰 페이지 총괄 및 데이터 베이스 관리
 * 회원가입 후 로그인으로 메인페이지에서 호텔 설명 카드 열람
 * 상세 리뷰 버튼으로 상세 리뷰 페이지 이동하여 호텔에 대한 여러 코멘트들 열람 가능
 * 마음에 드는 코멘트에 좋아요를 표시하여 좋아요 집계 가능
+* 마음에 안드는 호텔 카드 및 코멘트 삭제 가능
 * 로그인으로 받은 토큰이 없다면 로그인 페이지 이외의 타 페이지 강제 이동 불가능
 
 ## 3. 데이터베이스 구조
@@ -98,13 +104,95 @@ Role 세부 리뷰 페이지 총괄 및 데이터 베이스 관리
 
 ### 이은총
 ### login.html 및 해당 서버 기능 app.py
+<img width="1318" alt="login" src="https://user-images.githubusercontent.com/104499306/167991379-994551ac-5430-4b8e-85c5-5b340a83d80f.png">
+
+서버측 코드
+```
+@app.route('/')
+def home():
+    token_receive = request.cookies.get('mytoken')
+    try:
+        payload = jwt.decode(token_receive, SECRET_KEY, algorithms=['HS256'])
+        user_info = db.users.find_one({"user_id": payload["user_id"]})
+        return redirect(url_for("info"))
+    except jwt.ExpiredSignatureError:
+        return redirect(url_for("login"))
+    except jwt.exceptions.DecodeError:
+        return redirect(url_for("login"))
+```
+* 토큰이 남아 있는지 확인하여 토큰이 있으면 메인페이지로 아닐 경우에는 로그인 페이지로 보내준다
+* rediret(url_for("(함수 명)") 함수명에 해당되는 파라미터로 보냄
+```
+@app.route('/sign_in', methods=['POST'])
+def sign_in():
+    # 로그인
+    user_id_receive = request.form['user_id_give']
+    password_receive = request.form['password_give']
+
+    pw_hash = hashlib.sha256(password_receive.encode('utf-8')).hexdigest()
+    result = db.users.find_one({'user_id': user_id_receive, 'password': pw_hash})
 
 
+    if result is not None:
+        payload = {
+         'user_id': user_id_receive,
+         'exp': datetime.utcnow() + timedelta(seconds=60 * 60 * 1)  # 로그인 1시간 유지
+        }
+        token = jwt.encode(payload, SECRET_KEY, algorithm='HS256')
+        # .decode('utf-8')
+        print(token)
+        return jsonify({'result': 'success', 'token': token})
 
+    else:
+        return jsonify({'result': 'fail', 'msg': '아이디/비밀번호가 일치하지 않습니다.'})
+```
+* 로그인 api이며 입력한 아이디와 암호화된 비밀번호를 통해 find하여 none이 아니면 유저아이디와 로그인 시간을 가지고 있는 토큰을 쿠키에 넣는다
+* hashlib.sha256(명.encode('utf-8')).hexdigest() 암호화 시킨다. exp는 지속 시간을 나타낸다
+```
+@app.route('/sign_up/save', methods=['POST'])
+def sign_up():
+    user_id_receive = request.form['user_id_give']
+    password_receive = request.form['password_give']
+    nickname_receive = request.form['nickname_give']
+    print(user_id_receive,password_receive,nickname_receive)
+    password_hash = hashlib.sha256(password_receive.encode('utf-8')).hexdigest()
+    doc = {
+        "user_id": user_id_receive,                               # 아이디
+        "password": password_hash,                                  # 비밀번호
+        "nickname": nickname_receive                                # 닉네임
+    }
+    db.users.insert_one(doc)
+    return jsonify({'result': 'success'})
+```
+* 로그인 비밀번호 닉네임을 확인하여 데이터베이스에 추가
+```
+@app.route('/sign_up/check_id_dup', methods=['POST'])
+def check_id_dup():
+    user_id_receive = request.form['user_id_give']
+    print(user_id_receive)
+    exists = bool(db.users.find_one({"user_id": user_id_receive}))
+    print(exists)
+    return jsonify({'result': 'success', 'exists': exists})
+
+@app.route('/sign_up/check_nickname_dup', methods=['POST'])
+def check_nickname_dup():
+    nickname_receive = request.form['nickname_give']
+    exists = bool(db.users.find_one({"nickname": nickname_receive}))
+    return jsonify({'result': 'success', 'exists': exists})
+```
+* 로그인과 닉네임이 같은 사용자가 있는 지 없는 지 확인하는 코드 
+* bool()은 true/false로 변환한다
+```
+$.cookie("mytoken", response["token"], { path: "/" });
+$.removeCookie('mytoken', {path: '/'});
+```
+* $.cookie는 path에 있는 파라미터에 토큰을 준다 {path:"/"} 전역에 토큰을 부여
+* $.removeCookie는 path에 있는 파라미터 토큰을 삭제 {path:"/" 전역 토큰 삭제
 
 ### 박민수
 ### main.html 및 해당 서버 기능 app.py
 <img width="1921" alt="image" src="https://user-images.githubusercontent.com/95006095/167842528-f9d03306-80f6-42c5-9d84-3bfb92083c6d.png">
+
 
 서버측 코드
 ```
