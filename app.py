@@ -9,7 +9,7 @@ import requests
 
 from datetime import datetime, timedelta
 
-from bson.objectid import ObjectId
+from bson.objectid import ObjectId #objectid로 찾을 수 있음
 from pymongo import MongoClient
 import certifi
 ca = certifi.where()
