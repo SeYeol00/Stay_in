@@ -346,6 +346,7 @@ def get_posts():
             if (response["result"] == "success") {
               let posts = response["posts"];
               let hotel = response["hotel"];
+              let check_nickname = response["check_nickname"]
               let hotel_name = hotel[0];
               let hotel_image = hotel[1];
               let hotel_name_attach_temp = `...(코드 길이 관계상 생략)`;
@@ -358,7 +359,10 @@ def get_posts():
                   ? "fa-heart" //트루면
                   : "fa-heart-o"; //폴스면
                 let count_heart = post["count_heart"];
-                let html_temp = `...(코드 길이 관계상 생략)`
+                let html_temp
+                if(check_nickname==post["nickname"]){
+                let html_temp = `...(코드 길이 관계상 생략)`}
+                else{let html_temp = `...(코드 길이 관계상 생략)`}}
                 $("#post-box").append(html_temp);}
  ```
  * 이후 response의 딕셔너리가 포함된 리스트 형태로 데이터를 가져오고 이 데이터들을 호텔 정보를 보여주는 템플릿과 코멘트들을 보여주는 
